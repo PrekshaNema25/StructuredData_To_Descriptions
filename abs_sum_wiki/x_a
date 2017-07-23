@@ -1,0 +1,66 @@
+mkdir ../exp/DP_aa_od_f_ct_plus1
+mkdir ../exp/DP_aa_od_f_ct_plus2
+mkdir ../exp/DP_aa_od_f_ct_plus3
+mkdir ../exp/DP_aa_od_f_ct_plus4
+mkdir ../exp/DP_aa_od_f_ct_plus5
+mkdir ../exp/DP_aa_od_f_ct_plus6
+mkdir ../exp/DP_aa_od_f_ct_plus7
+mkdir ../exp/DP_aa_od_f_ct_plus8
+mkdir ../exp/DP_aa_od_f_ct_plus9
+mkdir ../exp/DP_aa_od_f_ct_plus10
+
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_aa_od_f_ct_plus1/e1.txt -out ../exp/DP_aa_od_f_ct_plus1/e1.txt python  run_model.py -a 32 -s 200 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/1/ -o ../exp/DP_aa_od_f_ct_plus1/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_aa_od_f_ct_plus2/e1.txt -out ../exp/DP_aa_od_f_ct_plus2/e1.txt python  run_model.py -a 32 -s 200 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/2/ -o ../exp/DP_aa_od_f_ct_plus2/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_aa_od_f_ct_plus3/e1.txt -out ../exp/DP_aa_od_f_ct_plus3/e1.txt python  run_model.py -a 32 -s 200 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/3/ -o ../exp/DP_aa_od_f_ct_plus3/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_aa_od_f_ct_plus4/e1.txt -out ../exp/DP_aa_od_f_ct_plus4/e1.txt python  run_model.py -a 32 -s 200 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/4/ -o ../exp/DP_aa_od_f_ct_plus4/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_aa_od_f_ct_plus5/e1.txt -out ../exp/DP_aa_od_f_ct_plus5/e1.txt python  run_model.py -a 32 -s 200 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/5/ -o ../exp/DP_aa_od_f_ct_plus5/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_aa_od_f_ct_plus6/e1.txt -out ../exp/DP_aa_od_f_ct_plus6/e1.txt python  run_model.py -a 32 -s 200 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/6/ -o ../exp/DP_aa_od_f_ct_plus6/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_aa_od_f_ct_plus7/e1.txt -out ../exp/DP_aa_od_f_ct_plus7/e1.txt python  run_model.py -a 32 -s 200 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/7/ -o ../exp/DP_aa_od_f_ct_plus7/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_aa_od_f_ct_plus8/e1.txt -out ../exp/DP_aa_od_f_ct_plus8/e1.txt python  run_model.py -a 32 -s 200 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/8/ -o ../exp/DP_aa_od_f_ct_plus8/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_aa_od_f_ct_plus9/e1.txt -out ../exp/DP_aa_od_f_ct_plus9/e1.txt python  run_model.py -a 32 -s 200 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/9/ -o ../exp/DP_aa_od_f_ct_plus9/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_aa_od_f_ct_plus10/e1.txt -out ../exp/DP_aa_od_f_ct_plus10/e1.txt python  run_model.py -a 32 -s 200 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/10/ -o ../exp/DP_aa_od_f_ct_plus10/
+
+mkdir ../exp/DP_ab_od_f_ct_plus1
+mkdir ../exp/DP_ab_od_f_ct_plus2
+mkdir ../exp/DP_ab_od_f_ct_plus3
+mkdir ../exp/DP_ab_od_f_ct_plus4
+mkdir ../exp/DP_ab_od_f_ct_plus5
+mkdir ../exp/DP_ab_od_f_ct_plus6
+mkdir ../exp/DP_ab_od_f_ct_plus7
+mkdir ../exp/DP_ab_od_f_ct_plus8
+mkdir ../exp/DP_ab_od_f_ct_plus9
+mkdir ../exp/DP_ab_od_f_ct_plus10
+
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_ab_od_f_ct_plus1/e1.txt -out ../exp/DP_ab_od_f_ct_plus1/e1.txt python  run_model.py -a 32 -s 300 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/1/ -o ../exp/DP_ab_od_f_ct_plus1/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_ab_od_f_ct_plus2/e1.txt -out ../exp/DP_ab_od_f_ct_plus2/e1.txt python  run_model.py -a 32 -s 300 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/2/ -o ../exp/DP_ab_od_f_ct_plus2/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_ab_od_f_ct_plus3/e1.txt -out ../exp/DP_ab_od_f_ct_plus3/e1.txt python  run_model.py -a 32 -s 300 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/3/ -o ../exp/DP_ab_od_f_ct_plus3/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_ab_od_f_ct_plus4/e1.txt -out ../exp/DP_ab_od_f_ct_plus4/e1.txt python  run_model.py -a 32 -s 300 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/4/ -o ../exp/DP_ab_od_f_ct_plus4/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_ab_od_f_ct_plus5/e1.txt -out ../exp/DP_ab_od_f_ct_plus5/e1.txt python  run_model.py -a 32 -s 300 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/5/ -o ../exp/DP_ab_od_f_ct_plus5/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_ab_od_f_ct_plus6/e1.txt -out ../exp/DP_ab_od_f_ct_plus6/e1.txt python  run_model.py -a 32 -s 300 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/6/ -o ../exp/DP_ab_od_f_ct_plus6/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_ab_od_f_ct_plus7/e1.txt -out ../exp/DP_ab_od_f_ct_plus7/e1.txt python  run_model.py -a 32 -s 300 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/7/ -o ../exp/DP_ab_od_f_ct_plus7/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_ab_od_f_ct_plus8/e1.txt -out ../exp/DP_ab_od_f_ct_plus8/e1.txt python  run_model.py -a 32 -s 300 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/8/ -o ../exp/DP_ab_od_f_ct_plus8/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_ab_od_f_ct_plus9/e1.txt -out ../exp/DP_ab_od_f_ct_plus9/e1.txt python  run_model.py -a 32 -s 300 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/9/ -o ../exp/DP_ab_od_f_ct_plus9/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_ab_od_f_ct_plus10/e1.txt -out ../exp/DP_ab_od_f_ct_plus10/e1.txt python  run_model.py -a 32 -s 300 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/10/ -o ../exp/DP_ab_od_f_ct_plus10/
+
+mkdir ../exp/DP_ac_od_f_ct_plus1
+mkdir ../exp/DP_ac_od_f_ct_plus2
+mkdir ../exp/DP_ac_od_f_ct_plus3
+mkdir ../exp/DP_ac_od_f_ct_plus4
+mkdir ../exp/DP_ac_od_f_ct_plus5
+mkdir ../exp/DP_ac_od_f_ct_plus6
+mkdir ../exp/DP_ac_od_f_ct_plus7
+mkdir ../exp/DP_ac_od_f_ct_plus8
+mkdir ../exp/DP_ac_od_f_ct_plus9
+mkdir ../exp/DP_ac_od_f_ct_plus10
+
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_ac_od_f_ct_plus1/e1.txt -out ../exp/DP_ac_od_f_ct_plus1/e1.txt python  run_model.py -a 32 -s 400 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/1/ -o ../exp/DP_ac_od_f_ct_plus1/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_ac_od_f_ct_plus2/e1.txt -out ../exp/DP_ac_od_f_ct_plus2/e1.txt python  run_model.py -a 32 -s 400 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/2/ -o ../exp/DP_ac_od_f_ct_plus2/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_ac_od_f_ct_plus3/e1.txt -out ../exp/DP_ac_od_f_ct_plus3/e1.txt python  run_model.py -a 32 -s 400 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/3/ -o ../exp/DP_ac_od_f_ct_plus3/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_ac_od_f_ct_plus4/e1.txt -out ../exp/DP_ac_od_f_ct_plus4/e1.txt python  run_model.py -a 32 -s 400 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/4/ -o ../exp/DP_ac_od_f_ct_plus4/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_ac_od_f_ct_plus5/e1.txt -out ../exp/DP_ac_od_f_ct_plus5/e1.txt python  run_model.py -a 32 -s 400 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/5/ -o ../exp/DP_ac_od_f_ct_plus5/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_ac_od_f_ct_plus6/e1.txt -out ../exp/DP_ac_od_f_ct_plus6/e1.txt python  run_model.py -a 32 -s 400 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/6/ -o ../exp/DP_ac_od_f_ct_plus6/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_ac_od_f_ct_plus7/e1.txt -out ../exp/DP_ac_od_f_ct_plus7/e1.txt python  run_model.py -a 32 -s 400 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/7/ -o ../exp/DP_ac_od_f_ct_plus7/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_ac_od_f_ct_plus8/e1.txt -out ../exp/DP_ac_od_f_ct_plus8/e1.txt python  run_model.py -a 32 -s 400 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/8/ -o ../exp/DP_ac_od_f_ct_plus8/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_ac_od_f_ct_plus9/e1.txt -out ../exp/DP_ac_od_f_ct_plus9/e1.txt python  run_model.py -a 32 -s 400 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/9/ -o ../exp/DP_ac_od_f_ct_plus9/
+jbsub -queue p8_12h -proj od_f_ct_plus -cores 1+1 -require k80 -err ../exp/DP_ac_od_f_ct_plus10/e1.txt -out ../exp/DP_ac_od_f_ct_plus10/e1.txt python  run_model.py -a 32 -s 400 -e 300 -l 0.0004 -n 50  -t 100 -w ../Final_data/10/ -o ../exp/DP_ac_od_f_ct_plus10/
+
