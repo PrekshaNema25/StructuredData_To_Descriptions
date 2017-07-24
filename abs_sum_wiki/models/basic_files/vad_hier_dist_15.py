@@ -153,6 +153,7 @@ def vad_decoder(decoder_inputs,
                       loop_function=None,
                       dtype=None,
                       scope=None,
+                      is_stay_nlb = False,
                       initial_state_attention=False):
   """RNN decoder with attention for the sequence-to-sequence model.
 
@@ -370,13 +371,17 @@ def vad_decoder(decoder_inputs,
 
       print ("inp", inp.get_shape(), new_attns_state[0].get_shape())
 
+
       attn_fields = attns_state_fields[0]
-      distract_output, distract_state = distraction_cell(attn_fields, distract_state)
-    
-      x = linear([inp] + new_attns_state + [distract_output], input_size, True)
+
+      if (is_stay_nlb == True):
+          distract_output, distract_state = distraction_cell(attn_fields, distract_state)
+          x = linear([inp] + new_attns_state + [distract_output], input_size, True)
+
+      else:
+          x = linear([inp] + new_attns_state + [attn_fields], input_size, True)
 
       # Run the RNN.
-      print (x.get_shape())
       cell_output, state = cell(x, state)
 
       print ("cell_output", cell_output.get_shape())
@@ -448,6 +453,7 @@ def vad_decoder_wrapper(decoder_inputs,
                                 embedding_scope = None,
                                 dtype=None,
                                 scope=None,
+                                is_stay_nlb=False,
                                 initial_state_attention=False):
   """RNN decoder with embedding and attention and a pure-decoding option.
 
@@ -548,6 +554,7 @@ def vad_seq2seq(encoder_inputs,
                                 feed_previous=False,
                                 dtype=None,
                                 scope=None,
+                                is_stay_nlb=False,
                                 initial_state_attention=False):
   """Embedding sequence-to-sequence model with attention.
 

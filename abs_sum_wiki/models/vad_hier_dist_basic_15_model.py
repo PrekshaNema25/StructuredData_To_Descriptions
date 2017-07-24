@@ -41,7 +41,7 @@ class BasicAttention:
 
 
     def inference(self, encoder_inputs1, decoder_inputs1, query_inputs,field_inputs,sequence_length_inputs,  embedding_size, feed_previous,
-                  len_vocab, hidden_size, weights, embedding_trainable, config,  initial_embedding = None, c=None):
+                  len_vocab, hidden_size, weights, embedding_trainable, config,  initial_embedding = None, c=None, is_stay_nlb = False, is_stay=False):
 
         """ Builds the graph for the basic attetion model
 
@@ -66,7 +66,12 @@ class BasicAttention:
         self.add_cell(hidden_size, c)
         self.add_projectionLayer(hidden_size, len_vocab)
 
-        distract_cell = BasicLSTMCell(2*hidden_size, state_is_tuple = True)
+        if is_stay:
+            distract_cell = BasicLSTMCell(2*hidden_size, state_is_tuple = True)
+
+        else:
+            distract_cell = Neverlookback_cell(2*hidden_size, state_is_tuple=True)
+ 
         cell_encoder_bw = GRUCell(hidden_size)
         #enc_cell = DistractionLSTMCell(hidden_size)
         ei = tf.unpack(encoder_inputs1)
@@ -90,9 +95,9 @@ class BasicAttention:
                                                 feed_previous= feed_previous,
                                                 initial_embedding = initial_embedding,
                                                 dtype=tf.float32, 
-						num_fields=config.max_sequence_length_field)
+						num_fields=config.max_sequence_length_field,
+                                                is_stay_nlb = is_stay_nlb)
 
-	print ("Print length", len(outputs))
         self.final_outputs = [tf.matmul(o, self.projection_W) + self.projection_B for o in outputs]
 
 

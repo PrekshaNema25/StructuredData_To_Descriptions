@@ -21,7 +21,7 @@ class Config:
     def __init__(self, learning_rate=0.0001, embedding_size=50, hidden_size=100,
                batch_size = 64,max_epochs = 20, max_sequence_length_content = 100, num_fields  = 20,
                max_sequence_length_title=50, max_sequence_length_query = 20, early_stop=100, outdir="../out/",
-               emb_tr=False, feed_previous = 5, vocab_frequency=74):
+               emb_tr=False, feed_previous = 5, vocab_frequency=74, is_stay_nlb = False, is_stay = False):
 
         """ Initialize the object with the parameters.
 
@@ -51,6 +51,8 @@ class Config:
         self.batch_size = batch_size
         self.max_epochs = max_epochs
         self.outdir     = outdir
+        self.is_stay_nlb = is_stay_nlb
+	self.is_stay = is_stay
         self.emb_tr     = emb_tr
         self.early_stop = early_stop
 	self.vocab_frequency = vocab_frequency
@@ -390,7 +392,7 @@ class run_model:
             self.logits, self.attention_weights, self.attention_weights_fields  = self.model.inference(self.encode_input_placeholder, self.decode_input_placeholder, 
                                           self.query_input_placeholder, self.field_input_placeholder, self.sequence_length_input_placeholder,  self.config.embedding_size,
                                           self.feed_previous_placeholder, len_vocab, self.config.hidden_size,
-                                          weights = self.weights_placeholder, initial_embedding=initial_embeddings, 
+                                          weights = self.weights_placeholder, initial_embedding=initial_embeddings, is_stay_nlb = self.config.is_stay_nlb, is_stay= self.config.is_stay, 
                                           embedding_trainable=self.config.emb_tr, config=self.config)
 
             # Add to the Graph the Ops for loss calculation.

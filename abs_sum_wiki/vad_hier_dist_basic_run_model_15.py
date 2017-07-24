@@ -47,7 +47,6 @@ def main():
     parser.add_option(
         "-x", "--emb-train", dest="emb_tr")
 
-
     parser.add_option(
 	"-p", "--vocab-freq", dest="vocab_frequency")
     parser.add_option(
@@ -55,6 +54,13 @@ def main():
 
     parser.add_option(
 	"-f", "--feed-previous", dest="feed_previous")
+
+    parser.add_option(
+	"-j", "--is_stay", dest="is_stay")
+
+    parser.add_option(
+	"-k", "--is_stay_nlb", dest="is_stay_nlb")
+
     (option, args) = parser.parse_args(sys.argv)
 
 
@@ -62,9 +68,19 @@ def main():
         x = True
     else:
         x = False 
+
+    if (option.is_stay == 'True'):
+	is_stay = True
+    else:
+	is_stay = False
+
+    if (option.is_stay_nlb == 'True'):
+        is_stay_nlb = True
+    else:
+	is_stay_nlb = False
     c = Config(float(option.lr), int(option.emb_size), int(option.hid_size), int(option.batch_size),
                 int(option.epochs), early_stop=int(option.early_stop), outdir= option.outdir, emb_tr=x, feed_previous=int(option.feed_previous), 
-		num_fields = int(option.num_fields), vocab_frequency=int(option.vocab_frequency))
+		num_fields = int(option.num_fields), vocab_frequency=int(option.vocab_frequency), is_stay = is_stay, is_stay_nlb = is_stay_nlb)
 
 
     run_attention = run_model(option.wd, BasicAttention(), c)
