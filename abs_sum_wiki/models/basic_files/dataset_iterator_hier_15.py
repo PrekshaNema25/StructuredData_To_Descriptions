@@ -10,7 +10,7 @@ from vocab_hier_15 import *
 
 class Datatype:
 
-    def __init__(self, name,title,label, content, query,field, sequence_length_field, exm,max_length_content, max_length_title, max_length_query, max_field):
+    def __init__(self, name,title,label, content, field, sequence_length_field, exm,max_length_content, max_length_title, max_field):
 
         """ Defines the dataset for each category valid/train/test
 
@@ -30,14 +30,13 @@ class Datatype:
         self.title = title
         self.content = content
         self.labels = label
-        self.query =  query
-	self.field = field
+        self.field = field
         self.sequence_length_field = sequence_length_field
         self.number_of_examples = exm
         self.max_length_content = max_length_content
         self.max_length_title = max_length_title - 1
-        self.max_length_query = max_length_query
-	self.max_field = max_field
+    
+        self.max_field = max_field
 
         print (name, " " , max_length_content, " " , max_length_title)
         self.global_count_train = 0
@@ -128,13 +127,11 @@ class PadDataset:
 
         max_length_content = max(val.max_length_content for i,val in self.datasets.iteritems())
         max_length_title   = max(val.max_length_title for i,val in self.datasets.iteritems())
-        max_length_query   = max(val.max_length_query for i, val in self.datasets.iteritems())
-	max_field          = max(val.max_field for i, val in self.datasets.iteritems())
+        max_field          = max(val.max_field for i, val in self.datasets.iteritems())
+
         contents, count1 = self.make_batch(dt.content, batch_size,count, max_length_content)
         titles, _ = self.make_batch(dt.title, batch_size, count, max_length_title)
         labels, _ = self.make_batch(dt.labels, batch_size, count, max_length_title)
-        query, _  = self.make_batch(dt.labels, batch_size, count, max_length_query)
-
 
         field, _ = self.make_batch(dt.field, batch_size, count, max_field) 
         sequence_length_field, _ = self.make_batch(dt.sequence_length_field, batch_size, count, max_field) 
@@ -152,22 +149,19 @@ class PadDataset:
         else:
             dt.global_count_test = count1 % dt.number_of_examples
         
-        return contents, titles, labels, query, field, sequence_length_field,  weights, max_length_content, max_length_title, max_length_query
+        return contents, titles, labels, field, sequence_length_field,  weights, max_length_content, max_length_title
     
-    def load_data_file(self,name, title_file, content_file, query_file, field_file, sequence_length_file):
+    def load_data_file(self,name, title_file, content_file, field_file, sequence_length_file):
 
         title = open(title_file,'rb')
         content = open(content_file,'rb')
-        query = open(query_file, 'r')
-
-	field = open(field_file, 'r')
+        field = open(field_file, 'r')
         sequence_length = open(sequence_length_file, 'r')
         title_encoded = []
         content_encoded = []
         label_encoded = []
-        query_encoded = []
-	field_encoded = []
-	sequence_length_list = []
+        field_encoded = []
+        sequence_length_list = []
 
         max_title = 0
         for lines in title:
@@ -179,22 +173,12 @@ class PadDataset:
             label_encoded.append(temp[1:])
 
 
-
-
         max_content = 0
         for lines in content:
             temp = [self.vocab.encode_word(word) for word in lines.split()]
             if (len(temp) > max_content):
                 max_content = len(temp)
             content_encoded.append(temp)
-
-
-        max_query = 0
-        for lines in query:
-            temp = [self.vocab.encode_word(word) for word in lines.split()]
-            if (len(temp) > max_query):
-                max_query = len(temp)
-            query_encoded.append(temp)
 
 
         max_field = 0
@@ -206,15 +190,15 @@ class PadDataset:
         print name
 
 
-	max_l = 0
+        max_l = 0
         for lines in sequence_length:
-	   temp = [int(word) for word in lines.split()]
-           if (len(temp) > max_l):
-		max_l = len(temp)
+            temp = [int(word) for word in lines.split()]
+            if (len(temp) > max_l):
+                max_l = len(temp)
 
-	   sequence_length_list.append(temp)
+            sequence_length_list.append(temp)
            
-        return Datatype(name, title_encoded, label_encoded, content_encoded, query_encoded, field_encoded, sequence_length_list, len(title_encoded), max_content, max_title, max_query, max_field)
+        return Datatype(name, title_encoded, label_encoded, content_encoded, field_encoded, sequence_length_list, len(title_encoded), max_content, max_title, max_field)
 
 
     def load_data(self, wd="../Data/"):
@@ -224,16 +208,15 @@ class PadDataset:
         for i in ("train", "valid", "test"):
             temp_t = s + i + "_summary"
             temp_v = s + i + "_content"
-            temp_q = s + i + "_query"
-	    temp_f = s + i + "_field"
-	    temp_l = s + i + "_sequence_length"
-            self.datasets[i] = self.load_data_file(i, temp_t, temp_v, temp_q, temp_f, temp_l)
+            temp_f = s + i + "_field"
+            temp_l = s + i + "_sequence_length"
+            self.datasets[i] = self.load_data_file(i, temp_t, temp_v, temp_f, temp_l)
 
 
     def __init__(self,  working_dir = "../Data/", embedding_size=100, vocab_frequency = 74, global_count = 0):
-        filenames = [working_dir + "train_summary" , working_dir + "train_content", working_dir + "train_query", working_dir + "train_field", working_dir + "train_sequence_length"]
+        filenames = [working_dir + "train_summary" , working_dir + "train_content", working_dir + "train_field", working_dir + "train_sequence_length"]
         #filenames = ["../DP_data/all_files"]
-	self.global_count = 0
+        self.global_count = 0
         self.vocab = Vocab()
         self.vocab.construct_vocab(filenames,embedding_size, vocab_frequency)
         self.load_data(working_dir)

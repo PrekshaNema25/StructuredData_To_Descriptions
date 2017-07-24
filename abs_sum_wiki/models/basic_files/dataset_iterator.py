@@ -10,7 +10,7 @@ from vocab import *
 
 class Datatype:
 
-    def __init__(self, name,title,label, content, query, exm,max_length_content, max_length_title, max_length_query):
+    def __init__(self, name,title,label, content, exm,max_length_content, max_length_title):
 
         """ Defines the dataset for each category valid/train/test
 
@@ -30,12 +30,10 @@ class Datatype:
         self.title = title
         self.content = content
         self.labels = label
-        self.query =  query
         self.number_of_examples = exm
         self.max_length_content = max_length_content
         self.max_length_title = max_length_title - 1
-        self.max_length_query = max_length_query
-
+ 
         print (name, " " , max_length_content, " " , max_length_title)
         self.global_count_train = 0
         self.global_count_test = 0
@@ -125,13 +123,11 @@ class PadDataset:
 
         max_length_content = max(val.max_length_content for i,val in self.datasets.iteritems())
         max_length_title   = max(val.max_length_title for i,val in self.datasets.iteritems())
-        max_length_query   = max(val.max_length_query for i, val in self.datasets.iteritems())
-
+ 
         contents, count1 = self.make_batch(dt.content, batch_size,count, max_length_content)
         titles, _ = self.make_batch(dt.title, batch_size, count, max_length_title)
         labels, _ = self.make_batch(dt.labels, batch_size, count, max_length_title)
-        query, _  = self.make_batch(dt.labels, batch_size, count, max_length_query)
-
+ 
         weights = copy.deepcopy(titles)
 
         for i in range(titles.shape[0]):
@@ -146,18 +142,16 @@ class PadDataset:
         else:
             dt.global_count_test = count1 % dt.number_of_examples
         
-        return contents, titles, labels, query, weights, max_length_content, max_length_title, max_length_query
-    
-    def load_data_file(self,name, title_file, content_file, query_file):
+        return contents, titles, labels, weights, max_length_content, max_length_title
+
+    def load_data_file(self,name, title_file, content_file):
 
         title = open(title_file,'rb')
         content = open(content_file,'rb')
-        query = open(query_file, 'r')
 
         title_encoded = []
         content_encoded = []
         label_encoded = []
-        query_encoded = []
 
         max_title = 0
         for lines in title:
@@ -168,9 +162,6 @@ class PadDataset:
             title_encoded.append(temp[:-1])
             label_encoded.append(temp[1:])
 
-
-
-
         max_content = 0
         for lines in content:
             temp = [self.vocab.encode_word(word) for word in lines.split()]
@@ -179,16 +170,8 @@ class PadDataset:
             content_encoded.append(temp)
 
 
-        max_query = 0
-        for lines in query:
-            temp = [self.vocab.encode_word(word) for word in lines.split()]
-            if (len(temp) > max_query):
-                max_query = len(temp)
-            query_encoded.append(temp)
-
         print name
-        return Datatype(name, title_encoded, label_encoded, content_encoded, query_encoded, len(title_encoded), max_content, max_title, max_query)
-
+        return Datatype(name, title_encoded, label_encoded, content_encoded, len(title_encoded), max_content, max_title)
 
     def load_data(self, wd="../Data/"):
 
@@ -197,14 +180,14 @@ class PadDataset:
         for i in ("train", "valid", "test"):
             temp_t = s + i + "_summary"
             temp_v = s + i + "_content"
-            temp_q = s + i + "_query"
-            self.datasets[i] = self.load_data_file(i, temp_t, temp_v, temp_q)
+            self.datasets[i] = self.load_data_file(i, temp_t, temp_v)
 
 
     def __init__(self,  working_dir = "../Data/", embedding_size=100, vocab_frequency = 73, global_count = 0):
-        filenames = [working_dir + "train_summary" , working_dir + "train_content", working_dir + "train_query"]
+        filenames = [working_dir + "train_summary" , working_dir + "train_content"]
         #filenames = ["../DP_data/all_files"]
-	self.global_count = 0
+
+        self.global_count = 0
         self.vocab = Vocab()
         self.vocab.construct_vocab(filenames,embedding_size, vocab_frequency)
         self.load_data(working_dir)

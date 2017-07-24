@@ -20,7 +20,7 @@ class Config:
 
     def __init__(self, learning_rate=0.0001, embedding_size=50, hidden_size=100,
                batch_size = 64,max_epochs = 20, max_sequence_length_content = 100, num_fields  = 20,
-               max_sequence_length_title=50, max_sequence_length_query = 20, early_stop=100, outdir="../out/",
+               max_sequence_length_title=50, early_stop=100, outdir="../out/",
                emb_tr=False, feed_previous = 5, vocab_frequency=74, is_stay_nlb = False, is_stay = False):
 
         """ Initialize the object with the parameters.
@@ -46,7 +46,6 @@ class Config:
         self.max_sequence_length_content = max_sequence_length_content
         self.max_sequence_length_field   = num_fields
         self.max_sequence_length_title   = max_sequence_length_title
-        self.max_sequence_length_query   = max_sequence_length_query
         self.hidden_size = hidden_size
         self.batch_size = batch_size
         self.max_epochs = max_epochs
@@ -98,7 +97,6 @@ class run_model:
 
         self.encode_input_placeholder  = tf.placeholder(tf.int32, shape=(self.config.max_sequence_length_content, None), name ='encode')
         self.decode_input_placeholder  = tf.placeholder(tf.int32, shape=(self.config.max_sequence_length_title, None),   name = 'decode')
-        self.query_input_placeholder   = tf.placeholder(tf.int32, shape=(self.config.max_sequence_length_query, None),   name = 'query')
         self.field_input_placeholder   = tf.placeholder(tf.int32, shape=(self.config.max_sequence_length_field, None),   name = 'field')
         self.sequence_length_input_placeholder   = tf.placeholder(tf.int64, shape=(self.config.max_sequence_length_field, None),   name = 'slength')
         self.label_placeholder         = tf.placeholder(tf.int32, shape=(self.config.max_sequence_length_title, None),   name = 'labels')
@@ -110,7 +108,7 @@ class run_model:
         #self.max_title_per_batch_p     = tf.placeholder(tf.int32, name='max_title')
 
 
-    def fill_feed_dict(self, encoder_inputs, decoder_inputs, labels, query, field, sequence_length,  weights, feed_previous=False):
+    def fill_feed_dict(self, encoder_inputs, decoder_inputs, labels, field, sequence_length,  weights, feed_previous=False):
 
         """ Fills the feed_dict for training at a given time_step.
 
@@ -132,7 +130,6 @@ class run_model:
         self.encode_input_placeholder : encoder_inputs,
         self.decode_input_placeholder : decoder_inputs,
         self.label_placeholder        : labels,
-        self.query_input_placeholder  : query, 
         self.field_input_placeholder  : field, 
         self.sequence_length_input_placeholder  : sequence_length, 
         self.weights_placeholder      : weights,
@@ -166,7 +163,7 @@ class run_model:
             # Get the next batch
 
 
-            train_content, train_title, train_labels, train_query, train_field, sequence_length, train_weights, max_content, max_title,max_query = self.dataset.next_batch(
+            train_content, train_title, train_labels, train_field, sequence_length, train_weights, max_content, max_title= self.dataset.next_batch(
                 self.dataset.datasets["train"],self.config.batch_size, True)
 
 
@@ -186,7 +183,7 @@ class run_model:
 
             feed_previous = False
             # Feed the placeholders with encoder_inputs,decoder_inputs,decoder_labels
-            feed_dict = self.fill_feed_dict(train_content, train_title, train_labels, train_query, train_field, sequence_length, train_weights, feed_previous)
+            feed_dict = self.fill_feed_dict(train_content, train_title, train_labels, train_field, sequence_length, train_weights, feed_previous)
 
 
             #Minimize the loss
@@ -207,7 +204,7 @@ class run_model:
             #    print (x_shape.shape)
 
 
-	    #x = sess.run(self.model.grad, feed_dict = feed_dict)
+	    #x = sess.run(self.model.grad, feed_dict = feed_dict)	
             #print (x)
 
 	    print ("Loss value ", loss_value, " " , step)
@@ -260,10 +257,10 @@ class run_model:
         steps_per_epoch =  int(math.ceil(float(data_set.number_of_examples) / float(self.config.batch_size)))
 
         for step in xrange(steps_per_epoch): 
-            train_content, train_title, train_labels, train_query, train_field, sequence_length, train_weights, max_content, max_title, max_query = self.dataset.next_batch(
+            train_content, train_title, train_labels, train_field, sequence_length, train_weights, max_content, max_title = self.dataset.next_batch(
                 data_set,self.config.batch_size, False)
             
-            feed_dict  = self.fill_feed_dict(train_content, train_title, train_labels, train_query, train_field, sequence_length,  train_weights, feed_previous = True)
+            feed_dict  = self.fill_feed_dict(train_content, train_title, train_labels,  train_field, sequence_length,  train_weights, feed_previous = True)
             loss_value = sess.run(self.loss_op, feed_dict=feed_dict)
             total_loss += loss_value
 
@@ -290,10 +287,10 @@ class run_model:
         steps_per_epoch =  int(math.ceil(float(data_set.number_of_examples) / float(self.config.batch_size)))
 
         for step in xrange(steps_per_epoch):
-            train_content, train_title, train_labels, train_query, train_field, sequence_length, train_weights, max_content, max_title, max_query = self.dataset.next_batch(
+            train_content, train_title, train_labels, train_field, sequence_length, train_weights, max_content, max_title = self.dataset.next_batch(
                 data_set,self.config.batch_size, False)
 
-            feed_dict = self.fill_feed_dict(train_content, train_title, train_labels, train_query, train_field, sequence_length, train_weights, feed_previous = True)
+            feed_dict = self.fill_feed_dict(train_content, train_title, train_labels, train_field, sequence_length, train_weights, feed_previous = True)
 
             _decoder_states_ , attention_weights, attention_weights_fields = sess.run([self.logits, self.attention_weights, self.attention_weights_fields], feed_dict=feed_dict)
             #_decoder_states_  = sess.run([self.logits], feed_dict=feed_dict)
@@ -341,10 +338,10 @@ class run_model:
 
         """
 
-        train_content, train_title, train_labels, train_query, train_field, sequence_length, train_weights, max_content, max_title, max_query = self.dataset.next_batch(
+        train_content, train_title, train_labels, train_field, sequence_length, train_weights, max_content, max_title = self.dataset.next_batch(
             data_set, total_examples, False)
 
-        feed_dict = self.fill_feed_dict(train_content, train_title, train_labels, train_query, train_field, sequence_length,  train_weights, feed_previous = True)
+        feed_dict = self.fill_feed_dict(train_content, train_title, train_labels,  train_field, sequence_length,  train_weights, feed_previous = True)
 
         _decoder_states_ = sess.run(self.logits, feed_dict=feed_dict)
 
@@ -380,7 +377,6 @@ class run_model:
 
             self.config.max_sequence_length_content = max(val.max_length_content for i,val in self.dataset.datasets.iteritems())
             self.config.max_sequence_length_title = max(val.max_length_title for i,val in self.dataset.datasets.iteritems())
-            self.config.max_sequence_length_query = max(val.max_length_query for i, val in self.dataset.datasets.iteritems())
 
 
             len_vocab = self.dataset.length_vocab()
@@ -389,8 +385,8 @@ class run_model:
             self.add_placeholders()
 
             # Build a Graph that computes predictions from the inference model.
-            self.logits, self.attention_weights, self.attention_weights_fields  = self.model.inference(self.encode_input_placeholder, self.decode_input_placeholder, 
-                                          self.query_input_placeholder, self.field_input_placeholder, self.sequence_length_input_placeholder,  self.config.embedding_size,
+            self.logits, self.attention_weights, self.attention_weights_fields  = self.model.inference(self.encode_input_placeholder, self.decode_input_placeholder
+                                          self.field_input_placeholder, self.sequence_length_input_placeholder,  self.config.embedding_size,
                                           self.feed_previous_placeholder, len_vocab, self.config.hidden_size,
                                           weights = self.weights_placeholder, initial_embedding=initial_embeddings, is_stay_nlb = self.config.is_stay_nlb, is_stay= self.config.is_stay, 
                                           embedding_trainable=self.config.emb_tr, config=self.config)
