@@ -90,9 +90,10 @@ class BasicAttention:
                                                 feed_previous= feed_previous,
                                                 initial_embedding = initial_embedding,
                                                 dtype=tf.float32,
-						num_fields = config.max_sequence_length_field)
+						num_fields = config.max_sequence_length_field, 
+						is_stay_nlb = config.is_stay_nlb,
+						number_of_tokens_per_field = config.number_of_tokens_per_field)
 
-	print ("Print length", len(outputs))
         self.final_outputs = [tf.matmul(o, self.projection_W) + self.projection_B for o in outputs]
 
 

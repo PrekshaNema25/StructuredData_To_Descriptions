@@ -153,7 +153,8 @@ def vad_decoder(decoder_inputs,
                       dtype=None,
                       scope=None,
                       is_stay_nlb = False,
-                      initial_state_attention=False):
+                      initial_state_attention=False, 
+		      number_of_tokens_per_field= 5):
   """RNN decoder with attention for the sequence-to-sequence model.
 
   In this context "attention" means that, during decoding, the RNN can look up
@@ -401,7 +402,7 @@ def vad_decoder(decoder_inputs,
       #new_attn_weights = math_ops.mul(attn_vec_tokens, attn_vec_fields)
 
       temp = []
-      for i in range(5):
+      for i in range(number_of_tokens_per_field):
 	 temp.append(attn_vec_fields)
 
       temp = array_ops.pack(temp, axis=2)
@@ -452,7 +453,8 @@ def vad_decoder_wrapper(decoder_inputs,
                                 dtype=None,
                                 scope=None,
                                 is_stay_nlb=False,
-                                initial_state_attention=False):
+                                initial_state_attention=False,
+				number_of_tokens_per_field=5):
   """RNN decoder with embedding and attention and a pure-decoding option.
 
   Args:
@@ -551,7 +553,8 @@ def vad_seq2seq(encoder_inputs,
                                 dtype=None,
                                 scope=None,
                                 is_stay_nlb=False,
-                                initial_state_attention=False):
+                                initial_state_attention=False, 
+				number_of_tokens_per_field = 5):
   """Embedding sequence-to-sequence model with attention.
 
   This model first embeds encoder_inputs by a newly created embedding (of shape
@@ -615,7 +618,7 @@ def vad_seq2seq(encoder_inputs,
     embedded_inputs = embedding_ops.embedding_lookup(embedding, encoder_inputs)
 
 
-    embedded_inputs = array_ops.reshape(embedded_inputs, [num_fields_g, 5, -1, embedding_size])
+    embedded_inputs = array_ops.reshape(embedded_inputs, [num_fields_g, number_of_tokens_per_field, -1, embedding_size])
     embedded_inputs = array_ops.unpack(embedded_inputs)
 
    
@@ -655,7 +658,7 @@ def vad_seq2seq(encoder_inputs,
           temp_outputs = array_ops.concat(2, temp_outputs_list[0])
           temp_outputs = array_ops.unpack(temp_outputs, axis=1)
 	  field_states.append(array_ops.concat(1, [initial_state_fw, initial_state_bw]))
-	  for j in range(5):
+	  for j in range(number_of_tokens_per_field):
 		encoder_outputs.append(temp_outputs[j])
 
 

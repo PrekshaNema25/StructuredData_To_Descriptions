@@ -21,7 +21,7 @@ class Config:
     def __init__(self, learning_rate=0.0001, embedding_size=50, hidden_size=100,
                batch_size = 64,max_epochs = 20, max_sequence_length_content = 100, num_fields  = 20,
                max_sequence_length_title=50, early_stop=100, outdir="../out/",
-               emb_tr=False, feed_previous = 5, vocab_frequency=74, is_stay_nlb = False, is_stay = False):
+               emb_tr=False, feed_previous = 5, vocab_frequency=74, is_stay_nlb = False, number_of_tokens_per_field = 5):
 
         """ Initialize the object with the parameters.
 
@@ -51,7 +51,7 @@ class Config:
         self.max_epochs = max_epochs
         self.outdir     = outdir
         self.is_stay_nlb = is_stay_nlb
-	self.is_stay = is_stay
+	self.number_of_tokens_per_field = number_of_tokens_per_field
         self.emb_tr     = emb_tr
         self.early_stop = early_stop
 	self.vocab_frequency = vocab_frequency
@@ -225,16 +225,6 @@ class run_model:
                 #loss_value = self.do_eval(sess,self.dataset.datasets["valid"])
                 self.print_titles(sess,self.dataset.datasets["valid"], 10)
                 #print('Step %d: loss = %.2f' % (step, loss_value))
-                    
-                # Evaluate against the test set.
-                print('Test Data Eval:')
-                #loss_value = self.do_eval(sess,self.dataset.datasets["test"])
-                self.print_titles(sess,self.dataset.datasets["test"], 10)
-                print('Step %d: loss = %.2f' % (step, loss_value))
-
-                #self.print_titles_in_files(sess, self.dataset.datasets["test"])
-                #self.print_titles_in_files(sess, self.dataset.datasets["train_test"])
-                #self.print_titles_in_files(sess, self.dataset.datasets["valid"])
                 sys.stdout.flush()
 
         return float(total_loss)/ float(steps_per_epoch)
