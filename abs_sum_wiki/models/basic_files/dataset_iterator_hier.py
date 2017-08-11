@@ -6,7 +6,7 @@ import sys
 import copy
 import os.path
 import tensorflow as tf
-from vocab_hier_15 import *
+from vocab_hier import *
 
 class Datatype:
 

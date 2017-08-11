@@ -9,7 +9,7 @@ import sys
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
 from optparse import OptionParser
-from models.basic_files.dataset_iterator_hier_15 import *
+from models.basic_files.dataset_iterator_hier import *
 import os
 
 class Config:

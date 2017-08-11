@@ -9,9 +9,9 @@ import sys
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
 from optparse import OptionParser
-from models.vad_hier_15_model import *
-from models.basic_files.dataset_iterator_hier_15 import *
-from run_model_hier_15 import *
+from models.so_nlb_model import *
+from models.basic_files.dataset_iterator_hier import *
+from run_model_so_nlb import *
 import os
 
 
@@ -45,28 +45,47 @@ def main():
         help="Output directory where the model will be stored", default="../out/")
 
     parser.add_option(
-        "-x", "--emb-train", dest="emb_tr")
-
+        "-x", "--emb-train", help= "Whether the embeddings are trainable or not", dest="emb_tr")
 
 
     parser.add_option(
-	"-p", "--vocab-frequency", dest="vocab_frequency")
+	"-p", "--vocab-freq", help = "The frequency cutoff for the vocabulary" , dest="vocab_frequency")
+    parser.add_option(
+	"-m", "--num-fields", help = "Number of field cutoff set for the wikiinfobox", dest="num_fields")
 
     parser.add_option(
-	"-m", "--num-fields", dest="num_fields")
+	"-f", "--feed-previous", help = " Epoch after which feed previous will be set to true",  dest="feed_previous")
 
     parser.add_option(
-	"-f", "--feed-previous", dest="feed_previous")
+    "-d", "--embedding-dir", help = "Directory that contains the embedding file", dest="embedding_dir")
+
+
+    parser.add_option(
+    "-k", "--is-stay-nlb", help = " Whether to keep SO-NLB module", dest="is_stay_nlb")
+
+
+    parser.add_option(
+    "-u", "--num-tokens-per-field",help = "Cutoff for maximum number of tokens in a field",  dest="number_of_tokens_per_field")
+
+
+
     (option, args) = parser.parse_args(sys.argv)
+
 
 
     if (int(option.emb_tr) == 1):
         x = True
     else:
         x = False 
+
+    if (option.is_stay_nlb == 'True'):
+    	is_stay_nlb = True
+    else:
+    	is_stay_nlb = False
     c = Config(float(option.lr), int(option.emb_size), int(option.hid_size), int(option.batch_size),
                 int(option.epochs), early_stop=int(option.early_stop), outdir= option.outdir, emb_tr=x, feed_previous=int(option.feed_previous), 
-		num_fields = int(option.num_fields), vocab_frequency=int(option.vocab_frequency))
+		num_fields = int(option.num_fields), vocab_frequency=int(option.vocab_frequency), embedding_dir = option.embedding_dir, is_stay_nlb = is_stay_nlb,
+		number_of_tokens_per_field = int(option.number_of_tokens_per_field))
 
 
     run_attention = run_model(option.wd, BasicAttention(), c)

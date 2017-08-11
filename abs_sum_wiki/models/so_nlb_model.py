@@ -1,6 +1,6 @@
 import tensorflow as tf
 import numpy as np
-from basic_files.vad_hier_dist_15 import *
+from basic_files.so_nlb import *
 from basic_files.rnn_cell import *
 
 import sys
@@ -40,8 +40,8 @@ class BasicAttention:
         self.projection_W = tf.get_variable(name="Projected_W", shape=[hidden_size, len_vocab])
 
 
-    def inference(self, encoder_inputs1, decoder_inputs1, field_inputs,sequence_length_inputs,  embedding_size, feed_previous,
-                  len_vocab, hidden_size, weights, embedding_trainable, config,  initial_embedding = None, c=None, is_stay_nlb = False, is_stay=False):
+    def inference(self, encoder_inputs1, decoder_inputs1,field_inputs,sequence_length_inputs,  embedding_size, feed_previous,
+                  len_vocab, hidden_size, weights, embedding_trainable, config,  initial_embedding = None, c=None):
 
         """ Builds the graph for the basic attetion model
 
@@ -66,12 +66,7 @@ class BasicAttention:
         self.add_cell(hidden_size, c)
         self.add_projectionLayer(hidden_size, len_vocab)
 
-        if is_stay:
-            distract_cell = BasicLSTMCell(2*hidden_size, state_is_tuple = True)
-
-        else:
-            distract_cell = Neverlookback_cell(2*hidden_size, state_is_tuple=True)
- 
+        distract_cell = Neverlookback_cell(2*hidden_size, state_is_tuple = True)
         cell_encoder_bw = GRUCell(hidden_size)
         #enc_cell = DistractionLSTMCell(hidden_size)
         ei = tf.unpack(encoder_inputs1)
@@ -92,9 +87,10 @@ class BasicAttention:
                                                 output_projection= (self.projection_W, self.projection_B),
                                                 feed_previous= feed_previous,
                                                 initial_embedding = initial_embedding,
-                                                dtype=tf.float32, 
-						num_fields=config.max_sequence_length_field,
-                                                is_stay_nlb = is_stay_nlb)
+                                                dtype=tf.float32,
+						num_fields = config.max_sequence_length_field, 
+						is_stay_nlb = config.is_stay_nlb,
+						number_of_tokens_per_field = config.number_of_tokens_per_field)
 
         self.final_outputs = [tf.matmul(o, self.projection_W) + self.projection_B for o in outputs]
 
