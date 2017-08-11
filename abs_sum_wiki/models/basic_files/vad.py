@@ -18,7 +18,6 @@ from . import rnn
 from tensorflow.python.ops import variable_scope
 from tensorflow.python.util import nest
 from . import rnn_cell
-from .basics import *
 
 
 """ Vanilla-Attend-Decode model will have only document attention 
@@ -141,11 +140,8 @@ def sequence_loss(logits, targets, weights,
 
 def vad_decoder(decoder_inputs,
                       initial_state,
-                      distract_initial_state,
                       attention_states,
-                      attention_states_query,
                       cell,
-                      distraction_cell,
                       output_size=None,
                       num_heads=1,
                       loop_function=None,
@@ -227,7 +223,6 @@ def vad_decoder(decoder_inputs,
     project_initial_state_W = variable_scope.get_variable("Initial_State_W", [dim_1, dim_2])
     project_initial_state_B = variable_scope.get_variable("Initial_State_Bias", [dim_2])
 
-    print ("Preksha " + scope.name)
     if attn_length_state is None:
       attn_length_state = shape(attention_states)[1]
 
@@ -336,11 +331,8 @@ def vad_decoder(decoder_inputs,
 
 def vad_decoder_wrapper(decoder_inputs,
                                 initial_state,
-                                distract_initial_state,
                                 attention_states,
-                                attention_states_query,
                                 cell_encoder,
-                                distraction_cell,
                                 num_symbols,
                                 embedding_size,
                                 num_heads=1,
@@ -406,7 +398,6 @@ def vad_decoder_wrapper(decoder_inputs,
   with variable_scope.variable_scope(
     embedding_scope or "vad_decoder_wrapper", dtype=dtype,  reuse = True) as s1:
 
-    print ("Preksha", s1.name)
     embedding = variable_scope.get_variable("embedding",
                                             [num_symbols, embedding_size])
     loop_function = _extract_argmax_and_embed(
@@ -420,11 +411,8 @@ def vad_decoder_wrapper(decoder_inputs,
     return vad_decoder(
         emb_inp,
         initial_state=initial_state,
-        attention_states_query = attention_states_query,
         attention_states=attention_states,
         cell = cell_encoder,
-        distract_initial_state = distract_initial_state,
-        distraction_cell = distraction_cell,
         output_size=output_size,
         num_heads=num_heads,
         loop_function=loop_function,
@@ -433,10 +421,8 @@ def vad_decoder_wrapper(decoder_inputs,
 
 def vad_seq2seq(encoder_inputs,
                                 decoder_inputs,
-                                query_inputs,
                                 cell_encoder_fw,
                                 cell_encoder_bw,
-                                distraction_cell,
                                 num_encoder_symbols,
                                 num_decoder_symbols,
                                 embedding_size,
@@ -511,9 +497,6 @@ def vad_seq2seq(encoder_inputs,
 
 
     
-    print ("Embedded Inputs length:", len(embedded_inputs))
-
-    print("Shape in embedded inputs:", embedded_inputs[0].get_shape())
 
     with variable_scope.variable_scope("Encoder_Cell"):
       encoder_outputs, encoder_state_fw, encoder_state_bw = rnn.bidirectional_rnn(
@@ -538,11 +521,9 @@ def vad_seq2seq(encoder_inputs,
           decoder_inputs,
           initial_state=encoder_state,
           attention_state=attention_states_encoder,
-          attention_states_query = None,  
           cell_encoder = cell_encoder_fw,
           num_symbols = num_decoder_symbols,
           embedding_size = embedding_size,
-          distract_initial_state = encoder_state,
           num_heads=num_heads,
           output_size=output_size,
           output_projection=output_projection,
@@ -562,12 +543,9 @@ def vad_seq2seq(encoder_inputs,
             decoder_inputs,
             initial_state=encoder_state,
             attention_states=attention_states_encoder,
-            attention_states_query = None, 
             cell_encoder = cell_encoder_fw,
             num_symbols=num_decoder_symbols,
             embedding_size = embedding_size,
-            distract_initial_state = encoder_state,
-            distraction_cell = distraction_cell, 
             num_heads=num_heads,
             output_size=output_size,
             output_projection=output_projection,

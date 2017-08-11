@@ -1,6 +1,6 @@
 import tensorflow as tf
 import numpy as numpy
-from basic_files.vad_eval import *
+from basic_files.vad import *
 from basic_files.rnn_cell import *
 
 import sys
@@ -40,7 +40,7 @@ class BasicAttention:
         self.projection_W = tf.get_variable(name="Projected_W", shape=[hidden_size, len_vocab])
 
 
-    def inference(self, encoder_inputs1, decoder_inputs1, query_inputs, embedding_size, feed_previous,
+    def inference(self, encoder_inputs1, decoder_inputs1, embedding_size, feed_previous,
                   len_vocab, hidden_size, weights, embedding_trainable,  initial_embedding = None, c=None):
 
         """ Builds the graph for the basic attetion model
@@ -66,18 +66,14 @@ class BasicAttention:
         self.add_cell(hidden_size, c)
         self.add_projectionLayer(hidden_size, len_vocab)
 
-        distract_cell = DistractionLSTMCell_hard(2*hidden_size, state_is_tuple = True)
         cell_encoder_bw = GRUCell(hidden_size)
         #enc_cell = DistractionLSTMCell(hidden_size)
         ei = tf.unpack(encoder_inputs1)
         di = tf.unpack(decoder_inputs1)
-        qi = tf.unpack(query_inputs)
         outputs, state, attention_weights   = vad_seq2seq(encoder_inputs = ei,
                                                 decoder_inputs = di,
-                                                query_inputs = qi,
                                                 cell_encoder_fw = self.enc_cell,
                                                 cell_encoder_bw = cell_encoder_bw,
-                                                distraction_cell = distract_cell,
                                                 embedding_trainable=embedding_trainable,
                                                 num_encoder_symbols= len_vocab,
                                                 num_decoder_symbols= len_vocab,

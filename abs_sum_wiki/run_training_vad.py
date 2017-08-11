@@ -21,7 +21,7 @@ class Config:
     def __init__(self, learning_rate=0.0001, embedding_size=50, hidden_size=100,
                batch_size = 64,max_epochs = 20, max_sequence_length_content = 100,
                max_sequence_length_title=50, max_sequence_length_query = 20, early_stop=100, outdir="../out/",
-               emb_tr=False, feed_previous = 5, vocab_frequency = 73):
+               emb_tr=False, feed_previous = 5, vocab_frequency = 73, embedding_dir = '../Data'):
 
         """ Initialize the object with the parameters.
 
@@ -52,8 +52,9 @@ class Config:
         self.outdir     = outdir
         self.emb_tr     = emb_tr
         self.early_stop = early_stop
-	self.feed_previous = feed_previous
-	self.vocab_frequency = vocab_frequency
+        self.embedding_dir = embedding_dir
+        self.feed_previous = feed_previous
+        self.vocab_frequency = vocab_frequency
 
         config_file.write("Learning rate " + str(self.learning_rate) + "\n")
         config_file.write("Embedding size " + str(self.embedding_size) + "\n")
@@ -85,7 +86,7 @@ class run_model:
         self.model   = bA
 
         # Vocabulary and datasets are initialized.
-        self.dataset = PadDataset(wd, self.config.embedding_size, self.config.vocab_frequency)
+        self.dataset = PadDataset(wd, self.config.embedding_size, self.config.vocab_frequency, self.config.embedding_dir)
 
 
     def add_placeholders(self):
@@ -95,7 +96,6 @@ class run_model:
 
         self.encode_input_placeholder  = tf.placeholder(tf.int32, shape=(self.config.max_sequence_length_content, None), name ='encode')
         self.decode_input_placeholder  = tf.placeholder(tf.int32, shape=(self.config.max_sequence_length_title, None),   name = 'decode')
-        self.query_input_placeholder   = tf.placeholder(tf.int32, shape=(self.config.max_sequence_length_query, None),   name = 'query')
         self.label_placeholder         = tf.placeholder(tf.int32, shape=(self.config.max_sequence_length_title, None),   name = 'labels')
         self.weights_placeholder       = tf.placeholder(tf.int32, shape=(self.config.max_sequence_length_title, None),   name = 'weights')
         self.feed_previous_placeholder = tf.placeholder(tf.bool, name='feed_previous')
@@ -127,7 +127,6 @@ class run_model:
         self.encode_input_placeholder : encoder_inputs,
         self.decode_input_placeholder : decoder_inputs,
         self.label_placeholder        : labels,
-        self.query_input_placeholder  : query, 
         self.weights_placeholder      : weights,
         self.feed_previous_placeholder: feed_previous,
         }
@@ -149,7 +148,6 @@ class run_model:
         """
 
         start_time = time.time()
-        print(self.dataset.datasets["train"])
         steps_per_epoch = int(math.ceil(float(self.dataset.datasets["train"].number_of_examples) / float(self.config.batch_size)))
 
         total_loss = 0
@@ -159,7 +157,7 @@ class run_model:
             # Get the next batch
 
 
-            train_content, train_title, train_labels, train_query, train_weights, max_content, max_title,max_query = self.dataset.next_batch(
+            train_content, train_title, train_labels, train_weights, max_content, max_title= self.dataset.next_batch(
                 self.dataset.datasets["train"],self.config.batch_size, True)
 
 
@@ -179,7 +177,7 @@ class run_model:
 
             feed_previous = False
             # Feed the placeholders with encoder_inputs,decoder_inputs,decoder_labels
-            feed_dict = self.fill_feed_dict(train_content, train_title, train_labels, train_query, train_weights, feed_previous)
+            feed_dict = self.fill_feed_dict(train_content, train_title, train_labels,train_weights, feed_previous)
 
 
             #Minimize the loss
@@ -202,30 +200,29 @@ class run_model:
 	    #x = sess.run(self.model.grad, feed_dict = feed_dict)
             #print (x)
 
-	    print ("Loss value ", loss_value, " " , step)
             sys.stdout.flush()
             # Check the loss with forward propogation
-            if (step + 1 == steps_per_epoch ) or ((step  + 1) % 1000 == 0):
+            if (step + 1 == steps_per_epoch ) or ((step  + 1) % self.config.print_frequency == 0):
 
                 # Print status to stdout.
                 print('Step %d: loss = %.2f (%.3f sec)' % (step, loss_value, duration))
                 sys.stdout.flush()
                 # Evaluate against the training set.
                 print('Training Data Eval:')
-                self.print_titles(sess, self.dataset.datasets["train"], 7)
+                self.print_titles(sess, self.dataset.datasets["train"], 2)
                     
                 # Evaluate against the validation set.
                 print('Step %d: loss = %.2f' % (step, loss_value))
                 print('Validation Data Eval:')
                 #loss_value = self.do_eval(sess,self.dataset.datasets["valid"])
-                self.print_titles(sess,self.dataset.datasets["valid"], 10)
+                self.print_titles(sess,self.dataset.datasets["valid"], 2)
                 #print('Step %d: loss = %.2f' % (step, loss_value))
                     
                 # Evaluate against the test set.
-                print('Test Data Eval:')
+                #print('Test Data Eval:')
                 #loss_value = self.do_eval(sess,self.dataset.datasets["test"])
-                self.print_titles(sess,self.dataset.datasets["test"], 10)
-                print('Step %d: loss = %.2f' % (step, loss_value))
+                #self.print_titles(sess,self.dataset.datasets["test"], 10)
+                #print('Step %d: loss = %.2f' % (step, loss_value))
 
                 #self.print_titles_in_files(sess, self.dataset.datasets["test"])
                 #self.print_titles_in_files(sess, self.dataset.datasets["train_test"])
@@ -252,10 +249,10 @@ class run_model:
         steps_per_epoch =  int(math.ceil(float(data_set.number_of_examples) / float(self.config.batch_size)))
 
         for step in xrange(steps_per_epoch): 
-            train_content, train_title, train_labels, train_query, train_weights, max_content, max_title, max_query = self.dataset.next_batch(
+            train_content, train_title, train_labels, train_weights, max_content, max_title= self.dataset.next_batch(
                 data_set,self.config.batch_size, False)
             
-            feed_dict  = self.fill_feed_dict(train_content, train_title, train_labels, train_query, train_weights, feed_previous = True)
+            feed_dict  = self.fill_feed_dict(train_content, train_title, train_labels, train_weights, feed_previous = True)
             loss_value = sess.run(self.loss_op, feed_dict=feed_dict)
             total_loss += loss_value
 
@@ -263,7 +260,7 @@ class run_model:
 
 
 
-    def print_titles_in_files(self, sess, data_set):
+    def print_titles_in_files(self, sess, data_set, epoch = 1000):
 
         """ Prints the titles for the requested examples.
 
@@ -274,15 +271,15 @@ class run_model:
 
         """
         total_loss = 0
-        f1 = open(self.config.outdir + data_set.name + "_final_results", "wb")
-        f2 = open(self.config.outdir + data_set.name + "_attention_weights", "wb")
+        f1 = open(self.config.outdir + data_set.name + "_final_results" + str(epoch), "wb")
+        f2 = open(self.config.outdir + data_set.name + "_attention_weights" + str(epoch), "wb")
         steps_per_epoch =  int(math.ceil(float(data_set.number_of_examples) / float(self.config.batch_size)))
 
         for step in xrange(steps_per_epoch):
-            train_content, train_title, train_labels, train_query, train_weights, max_content, max_title, max_query = self.dataset.next_batch(
+            train_content, train_title, train_labels,  train_weights, max_content, max_title = self.dataset.next_batch(
                 data_set,self.config.batch_size, False)
 
-            feed_dict = self.fill_feed_dict(train_content, train_title, train_labels, train_query, train_weights, feed_previous = True)
+            feed_dict = self.fill_feed_dict(train_content, train_title, train_labels, train_weights, feed_previous = True)
 
             _decoder_states_ , attention_weights = sess.run([self.logits, self.attention_weights], feed_dict=feed_dict)
             print('attn_wt shape', np.shape(attention_weights))
@@ -290,7 +287,7 @@ class run_model:
 
 
             attention_states = np.array([np.argmax(i,1) for i in attention_weights])
-           # Pack the list of size max_sequence_length to a tensor
+            # Pack the list of size max_sequence_length to a tensor
             decoder_states = np.array([np.argmax(i,1) for i in _decoder_states_])
 
             # tensor will be converted to [batch_size * sequence_length * symbols]
@@ -327,10 +324,10 @@ class run_model:
 
         """
 
-        train_content, train_title, train_labels, train_query, train_weights, max_content, max_title, max_query = self.dataset.next_batch(
+        train_content, train_title, train_labels, train_weights, max_content, max_title = self.dataset.next_batch(
             data_set, total_examples, False)
 
-        feed_dict = self.fill_feed_dict(train_content, train_title, train_labels, train_query, train_weights, feed_previous = True)
+        feed_dict = self.fill_feed_dict(train_content, train_title, train_labels, train_weights, feed_previous = True)
 
         _decoder_states_ = sess.run(self.logits, feed_dict=feed_dict)
 
@@ -366,7 +363,6 @@ class run_model:
 
             self.config.max_sequence_length_content = max(val.max_length_content for i,val in self.dataset.datasets.iteritems())
             self.config.max_sequence_length_title = max(val.max_length_title for i,val in self.dataset.datasets.iteritems())
-            self.config.max_sequence_length_query = max(val.max_length_query for i, val in self.dataset.datasets.iteritems())
 
             len_vocab = self.dataset.length_vocab()
             initial_embeddings = self.dataset.vocab.embeddings
@@ -375,7 +371,7 @@ class run_model:
 
             # Build a Graph that computes predictions from the inference model.
             self.logits, self.attention_weights  = self.model.inference(self.encode_input_placeholder, self.decode_input_placeholder, 
-                                          self.query_input_placeholder, self.config.embedding_size,
+                                          self.config.embedding_size,
                                           self.feed_previous_placeholder, len_vocab, self.config.hidden_size,
                                           weights = self.weights_placeholder, initial_embedding=initial_embeddings, 
                                           embedding_trainable=self.config.emb_tr)
@@ -403,7 +399,7 @@ class run_model:
 
             # if best_model exists pick the weights from there:
             if (os.path.exists(self.config.outdir + "best_model")):
-                print ("Yes!!")
+                print ("Initializing the model with the best saved model")
                 saver.restore(sess, self.config.outdir + "best_model")
                 best_val_loss = self.do_eval(sess, self.dataset.datasets["valid"])
                 test_loss    = self.do_eval(sess, self.dataset.datasets["test"])
@@ -412,6 +408,7 @@ class run_model:
 
 
             if (os.path.exists(self.config.outdir + "last_model")):
+                print ("Initializing the model with the last saved epoch")
                 saver.restore(sess, self.config.outdir + "last_model")
 
 
@@ -428,18 +425,8 @@ class run_model:
                 print ("Epoch: " + str(epoch))
                 start = time.time()
 
-                print('Trainable Variables') 
-                #for i in tf.trainable_variables():
-		        #	print (i.name)
-		        #	print (sess.run(tf.shape(i)))
-		        #	print (sess.run(i))
-                
-                #Do a forward propogation for valid dataset
                 train_loss = self.run_epoch(epoch, sess)
                 valid_loss = self.do_eval(sess, self.dataset.datasets["valid"])
-
-                print ("Training Loss:{}".format(train_loss))
-                print ("Validation Loss:{}".format(valid_loss))
 
                 if valid_loss <= best_val_loss:
                     best_val_loss = valid_loss
@@ -449,12 +436,11 @@ class run_model:
                 #if (epoch == self.config.max_epochs - 1):
                 saver.save(sess, self.config.outdir + 'last_model')
 
-
                 if (epoch - best_val_epoch > self.config.early_stop):
                     print ("Results are getting no better. Early Stopping")
                     break
 
-                print ("Total time:{}".format(time.time() - start))
+                print ("Epoch: {} Training Loss: {} Validation Loss: {} Total time:{}".format(Epoch, train_loss, valid_loss, time.time() - start))
 
             saver.restore(sess, self.config.outdir + 'best_model')
             test_loss = self.do_eval(sess, self.dataset.datasets["test"])

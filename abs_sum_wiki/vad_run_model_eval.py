@@ -53,8 +53,10 @@ def main():
 
     parser.add_option(
 	"-f", "--feed-previous", dest="feed_previous")
-    (option, args) = parser.parse_args(sys.argv)
 
+    parser.add_option(
+    "-k", "--embedding-dir", dest="embedding_dir")
+    (option, args) = parser.parse_args(sys.argv)
 
     if (int(option.emb_tr) == 1):
         x = True
@@ -62,8 +64,7 @@ def main():
         x = False 
     c = Config(float(option.lr), int(option.emb_size), int(option.hid_size), int(option.batch_size),
                 int(option.epochs), early_stop=int(option.early_stop), outdir= option.outdir, emb_tr=x, feed_previous=int(option.feed_previous), 
-		vocab_frequency = int(option.vocab_frequency))
-
+		vocab_frequency = int(option.vocab_frequency), embedding_dir = option.embedding_dir)
 
     run_attention = run_model(option.wd, BasicAttention(), c)
     run_attention.run_training()
