@@ -39,8 +39,12 @@ class Vocab():
         """
         sentences = []
 
+	if (os.path.exists(embedding_dir + 'vocab_len.pkl')):
+		vocab_len_stored = pickle.load(open(embedding_dir + "vocab_len.pkl"))
+	else:
+		vocab_len_stored = 0
 
-	if (os.path.exists(embedding_dir + "embeddings.pkl")):
+	if (vocab_len_stored == self.len_vocab and os.path.exists(embedding_dir + "embeddings.pkl")):
 		print ("Load file")
 		self.embeddings = pickle.load(open(embedding_dir +  "embeddings.pkl"))
 		return None
@@ -63,24 +67,6 @@ class Vocab():
         self.embeddings_model = model
         return model
 
-    def get_pretrained_embeddings(self, embedding_size):
-
-        """ Initialize the embeddings from the Glove embeddings.
-
-        Args:
-            * embedding_size : The size of the embeddings taken.
-
-        Returns:
-            * void
-        """
-
-        if(os.path.exists("embedding.pickle")):
-            f = open("embedding.pickle","rb")
-            embeddings = pickle.load(f)
-
-        else:
-            return
-        self.embeddings_model = embeddings
 
     def add_constant_tokens(self):
 
@@ -157,41 +143,6 @@ class Vocab():
         print new_index
         self.word_to_index = temp_word_to_index
 
-    def remove_the_unfrequent(self, limit):
-
-
-        """Only keep the frequent items in the list
-
-            Arguments:
-                * limit : Vocab_size is limited to the given parameter.
-
-            Returns:
-                * void
-        """
-
-        temp_word_to_index = {}
-        temp_index_to_word = {}
-
-        #sort the frequency list
-        sorted_frequence_list = sorted(self.word_freq.items(), key=operator.itemgetter(1), reverse=True)
-
-        #get the list of the frequent words, upto the given limit.
-        word_list = []
-        count = 0
-        for i, j in sorted_frequence_list:
-            if (count < limit):
-                word_list.append(i)
-                count = count + 1
-
-        new_index = 2
-        for key in self.word_to_index:
-            if key in word_list:
-                temp_word_to_index[key] = new_index
-                temp_index_to_word[new_index] = key
-                new_index  = new_index + 1
-
-        print new_index
-        self.word_to_index = temp_word_to_index
 
     def construct_dictionary_multiple_files(self, filenames):
 
@@ -246,7 +197,12 @@ class Vocab():
         np.random.seed(1357)
 
 
-	if os.path.exists(embedding_dir + "embeddings.pkl"):
+	if (os.path.exists(embedding_dir + 'vocab_len.pkl')):
+		vocab_len_stored = pickle.load(open(embedding_dir + "vocab_len.pkl"))
+	else:
+		vocab_len_stored = 0
+	
+	if vocab_len_stored == self.len_vocab and os.path.exists(embedding_dir + "embeddings.pkl"):
 		self.embeddings = pickle.load(open(embedding_dir + "embeddings.pkl"))
 		return
 
@@ -282,32 +238,9 @@ class Vocab():
         self.embeddings = self.embeddings.astype(np.float32)
 
 
-	if not(os.path.exists(embedding_dir + "embeddings.pkl")):
-		pickle.dump(self.embeddings, open(embedding_dir + "embeddings.pkl", "w"))
+	pickle.dump(self.embeddings, open(embedding_dir + "embeddings.pkl", "w"))
+	pickle.dump(self.len_vocab, open(embedding_dir + "vocab_len.pkl", "w"))
 
-    def get_embeddings(self, embedding_size):
-
-        """ Embeddings from the glove embedding are appended
-        based on the index of the word.
-        """
-
-        sorted_list = sorted(self.index_to_word.items(), key = operator.itemgetter(0))
-        embeddings = []
-        np.random.seed(1357)
-
-        for index, word in sorted_list:
-
-            if word in self.embeddings_model.vocab:
-                embeddings.append(self.embeddings_model[word])
-            else:
-                if word in ['<pad>', '<s>', '<eos>']:
-                    temp = np.zeros((embedding_size))
-                else:
-                    temp = np.random.uniform(-sqrt(3)/sqrt(embedding_size), sqrt(3)/sqrt(embedding_size), (embedding_size))
-                embeddings.append(temp)
-
-        self.embeddings = np.asarray(embeddings)
-        self.embeddings = self.embeddings.astype(np.float32)
 
     def construct_vocab(self, filenames, embedding_size=100, vocab_frequency=74, embedding_dir="../Data/"):
 
@@ -322,7 +255,6 @@ class Vocab():
                 * void
         """
 
-        self.get_global_embeddings(filenames, embedding_size, embedding_dir)
         self.construct_dictionary_multiple_files(filenames)
         self.fix_the_frequency(vocab_frequency)
         #self.remove_the_unfrequent(10000)
@@ -330,6 +262,7 @@ class Vocab():
         sys.stdout.flush()
         self.add_constant_tokens()
         self.create_reverse_dictionary()
+        self.get_global_embeddings(filenames, embedding_size, embedding_dir)
         self.get_embeddings_pretrained(embedding_size, embedding_dir)
 
         self.len_vocab = len(self.word_to_index)
