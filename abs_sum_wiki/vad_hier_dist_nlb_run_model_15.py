@@ -45,27 +45,27 @@ def main():
         help="Output directory where the model will be stored", default="../out/")
 
     parser.add_option(
-        "-x", "--emb-train", dest="emb_tr")
+        "-x", "--emb-train", help= "Whether the embeddings are trainable or not", dest="emb_tr")
 
 
     parser.add_option(
-	"-p", "--vocab-freq", dest="vocab_frequency")
+	"-p", "--vocab-freq", help = "The frequency cutoff for the vocabulary" , dest="vocab_frequency")
     parser.add_option(
-	"-m", "--num-fields", dest="num_fields")
+	"-m", "--num-fields", help = "Number of field cutoff set for the wikiinfobox", dest="num_fields")
 
     parser.add_option(
-	"-f", "--feed-previous", dest="feed_previous")
+	"-f", "--feed-previous", help = " Epoch after which feed previous will be set to true",  dest="feed_previous")
 
     parser.add_option(
-    "-d", "--embedding-dir", dest="embedding_dir")
-
-
-    parser.add_option(
-    "-k", "--is-stay-nlb", dest="is_stay_nlb")
+    "-d", "--embedding-dir", help = "Directory that contains the embedding file", dest="embedding_dir")
 
 
     parser.add_option(
-    "-u", "--num-tokens-per-field", dest="number_of_tokens_per_field")
+    "-k", "--is-stay-nlb", help = " Whether to keep SO-NLB module", dest="is_stay_nlb")
+
+
+    parser.add_option(
+    "-u", "--num-tokens-per-field",help = "Cutoff for maximum number of tokens in a field",  dest="number_of_tokens_per_field")
 
 
 

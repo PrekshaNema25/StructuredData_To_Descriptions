@@ -21,7 +21,7 @@ class Config:
     def __init__(self, learning_rate=0.0001, embedding_size=50, hidden_size=100,
                batch_size = 64,max_epochs = 20, max_sequence_length_content = 100, num_fields  = 20,
                max_sequence_length_title=50, early_stop=100, outdir="../out/",
-               emb_tr=False, feed_previous = 5, vocab_frequency=74, is_stay_nlb = False, number_of_tokens_per_field = 5):
+               emb_tr=False, feed_previous = 5, vocab_frequency=74, embedding_dir = "../Data",is_stay_nlb = False, number_of_tokens_per_field = 5):
 
         """ Initialize the object with the parameters.
 
@@ -54,6 +54,7 @@ class Config:
 	self.number_of_tokens_per_field = number_of_tokens_per_field
         self.emb_tr     = emb_tr
         self.early_stop = early_stop
+	self.embedding_dir = embedding_dir
 	self.vocab_frequency = vocab_frequency
 	self.feed_previous = feed_previous
 
@@ -87,7 +88,7 @@ class run_model:
         self.model   = bA
 
         # Vocabulary and datasets are initialized.
-        self.dataset = PadDataset(wd, self.config.embedding_size, self.config.vocab_frequency)
+        self.dataset = PadDataset(wd, self.config.embedding_size, self.config.vocab_frequency, embedding_dir = self.config.embedding_dir)
 
 
     def add_placeholders(self):
@@ -375,10 +376,10 @@ class run_model:
             self.add_placeholders()
 
             # Build a Graph that computes predictions from the inference model.
-            self.logits, self.attention_weights, self.attention_weights_fields  = self.model.inference(self.encode_input_placeholder, self.decode_input_placeholder
+            self.logits, self.attention_weights, self.attention_weights_fields  = self.model.inference(self.encode_input_placeholder, self.decode_input_placeholder,
                                           self.field_input_placeholder, self.sequence_length_input_placeholder,  self.config.embedding_size,
                                           self.feed_previous_placeholder, len_vocab, self.config.hidden_size,
-                                          weights = self.weights_placeholder, initial_embedding=initial_embeddings, is_stay_nlb = self.config.is_stay_nlb, is_stay= self.config.is_stay, 
+                                          weights = self.weights_placeholder, initial_embedding=initial_embeddings, 
                                           embedding_trainable=self.config.emb_tr, config=self.config)
 
             # Add to the Graph the Ops for loss calculation.
