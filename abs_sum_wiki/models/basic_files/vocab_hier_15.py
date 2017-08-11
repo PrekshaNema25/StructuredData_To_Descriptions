@@ -26,7 +26,7 @@ class Vocab():
         self.embeddings    = None
 
 
-    def get_global_embeddings(self, filenames, embedding_size):
+    def get_global_embeddings(self, filenames, embedding_size, embedding_dir):
 
         """ Construct the Embedding Matrix for the sentences in filenames.
 
@@ -40,11 +40,16 @@ class Vocab():
         sentences = []
 
 
-        if (os.path.exists('../Data/embeddings.bin') == True):
+	if (os.path.exists(embedding_dir + "embeddings.pkl")):
+		print ("Load file")
+		self.embeddings = pickle.load(open(embedding_dir +  "embeddings.pkl"))
+		return None
+
+        if (os.path.exists(embedding_dir + 'embeddings') == True):
             #model = gensim.models.KeyedVectors.load_word2vec_format('../Data/embeddings.bin', binary = True)
             #model = Word2Vec.load_word2vec_format('../Data/embeddings.bin', binary = True)
-	    print ("Embedding.......")
-            model = gensim.models.KeyedVectors.load_word2vec_format('../Data/embeddings.bin', binary=False)
+            model = gensim.models.KeyedVectors.load_word2vec_format(embedding_dir + 'embeddings', binary=False)
+	    print ("Pretrained Embedding Loaded")
         else:
             for file in filenames:
                 with open(file, 'rb') as f:
@@ -53,7 +58,7 @@ class Vocab():
                         sentences.extend(words)
 
             model = Word2Vec(sentences, size=embedding_size, min_count=0)
-            model.save("../Data/embeddings.bin")
+            model.save(embedding_dir + "embeddings.bin")
 
         self.embeddings_model = model
         return model
@@ -231,7 +236,7 @@ class Vocab():
         return self.index_to_word[index]
 
 
-    def get_embeddings_pretrained(self, embedding_size):
+    def get_embeddings_pretrained(self, embedding_size, embedding_dir):
 
         """ Embeddings are appened based on the index of the 
         word in the matrix self.embeddings.
@@ -241,6 +246,9 @@ class Vocab():
         np.random.seed(1357)
 
 
+	if os.path.exists(embedding_dir + "embeddings.pkl"):
+		self.embeddings = pickle.load(open(embedding_dir + "embeddings.pkl"))
+		return
 
         embeddings = []
 	count = 0
@@ -274,6 +282,9 @@ class Vocab():
         self.embeddings = self.embeddings.astype(np.float32)
 
 
+	if not(os.path.exists(embedding_dir + "embeddings.pkl")):
+		pickle.dump(self.embeddings, open(embedding_dir + "embeddings.pkl", "w"))
+
     def get_embeddings(self, embedding_size):
 
         """ Embeddings from the glove embedding are appended
@@ -298,7 +309,7 @@ class Vocab():
         self.embeddings = np.asarray(embeddings)
         self.embeddings = self.embeddings.astype(np.float32)
 
-    def construct_vocab(self, filenames, embedding_size=100, vocab_frequency=74):
+    def construct_vocab(self, filenames, embedding_size=100, vocab_frequency=74, embedding_dir="../Data/"):
 
 
         """ Constructs the embeddings and  vocabs from the parameters given.
@@ -311,7 +322,7 @@ class Vocab():
                 * void
         """
 
-        self.get_global_embeddings(filenames, embedding_size)
+        self.get_global_embeddings(filenames, embedding_size, embedding_dir)
         self.construct_dictionary_multiple_files(filenames)
         self.fix_the_frequency(vocab_frequency)
         #self.remove_the_unfrequent(10000)
@@ -319,7 +330,7 @@ class Vocab():
         sys.stdout.flush()
         self.add_constant_tokens()
         self.create_reverse_dictionary()
-        self.get_embeddings_pretrained(embedding_size)
+        self.get_embeddings_pretrained(embedding_size, embedding_dir)
 
         self.len_vocab = len(self.word_to_index)
         print "Length of the dictionary is " + str(len(self.word_to_index))
