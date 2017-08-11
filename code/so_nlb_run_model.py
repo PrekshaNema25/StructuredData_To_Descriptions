@@ -11,7 +11,7 @@ import tensorflow as tf
 from optparse import OptionParser
 from models.so_nlb_model import *
 from models.basic_files.dataset_iterator_hier import *
-from run_model_so_nlb import *
+from run_training_so_nlb import *
 import os
 
 
@@ -68,6 +68,8 @@ def main():
     "-u", "--num-tokens-per-field",help = "Cutoff for maximum number of tokens in a field",  dest="number_of_tokens_per_field")
 
 
+    parser.add_option(
+    "-c", "--print_frequency",help = "Print after these number of steps",  dest="print_frequency")
 
     (option, args) = parser.parse_args(sys.argv)
 
@@ -85,7 +87,7 @@ def main():
     c = Config(float(option.lr), int(option.emb_size), int(option.hid_size), int(option.batch_size),
                 int(option.epochs), early_stop=int(option.early_stop), outdir= option.outdir, emb_tr=x, feed_previous=int(option.feed_previous), 
 		num_fields = int(option.num_fields), vocab_frequency=int(option.vocab_frequency), embedding_dir = option.embedding_dir, is_stay_nlb = is_stay_nlb,
-		number_of_tokens_per_field = int(option.number_of_tokens_per_field))
+		number_of_tokens_per_field = int(option.number_of_tokens_per_field), print_frequency=int(option.print_frequency))
 
 
     run_attention = run_model(option.wd, BasicAttention(), c)

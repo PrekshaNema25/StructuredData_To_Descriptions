@@ -21,7 +21,7 @@ class Config:
     def __init__(self, learning_rate=0.0001, embedding_size=50, hidden_size=100,
                batch_size = 64,max_epochs = 20, max_sequence_length_content = 100, num_fields  = 20,
                max_sequence_length_title=50, early_stop=100, outdir="../out/",
-               emb_tr=False, feed_previous = 5, vocab_frequency=74, embedding_dir = "../Data",is_stay_nlb = False, number_of_tokens_per_field = 5):
+               emb_tr=False, feed_previous = 5, vocab_frequency=74, embedding_dir = "../Data",is_stay_nlb = False, number_of_tokens_per_field = 5, print_frequency = 1000):
 
         """ Initialize the object with the parameters.
 
@@ -57,7 +57,7 @@ class Config:
 	self.embedding_dir = embedding_dir
 	self.vocab_frequency = vocab_frequency
 	self.feed_previous = feed_previous
-
+	self.print_frequency = print_frequency
         config_file.write("Learning rate " + str(self.learning_rate) + "\n")
         config_file.write("Embedding size " + str(self.embedding_size) + "\n")
         config_file.write("hidden size " + str(self.hidden_size) + "\n")
@@ -123,10 +123,6 @@ class run_model:
                 feed_dict : the dictionary created.
         """
 
-	#print ("Fill feed dictionary is")
-	#print (encoder_inputs)
-	#print (decoder_inputs)
-	#print (labels)
         feed_dict = {
         self.encode_input_placeholder : encoder_inputs,
         self.decode_input_placeholder : decoder_inputs,
@@ -154,7 +150,6 @@ class run_model:
         """
 
         start_time = time.time()
-        print(self.dataset.datasets["train"])
         steps_per_epoch = int(math.ceil(float(self.dataset.datasets["train"].number_of_examples) / float(self.config.batch_size)))
 
         total_loss = 0
@@ -208,23 +203,23 @@ class run_model:
 	    #x = sess.run(self.model.grad, feed_dict = feed_dict)	
             #print (x)
 
-	    print ("Loss value ", loss_value, " " , step)
+	    #print ("Loss value ", loss_value, " " , step)
             sys.stdout.flush()
             # Check the loss with forward propogation
-            if (step + 1 == steps_per_epoch ) or ((step  + 1) % 1000 == 0):
+            if (step + 1 == steps_per_epoch ) or ((step  + 1) % self.config.print_frequency == 0):
 
                 # Print status to stdout.
                 print('Step %d: loss = %.2f (%.3f sec)' % (step, loss_value, duration))
                 sys.stdout.flush()
                 # Evaluate against the training set.
                 print('Training Data Eval:')
-                self.print_titles(sess, self.dataset.datasets["train"], 7)
+                self.print_titles(sess, self.dataset.datasets["train"], 2)
                     
                 # Evaluate against the validation set.
                 print('Step %d: loss = %.2f' % (step, loss_value))
                 print('Validation Data Eval:')
                 #loss_value = self.do_eval(sess,self.dataset.datasets["valid"])
-                self.print_titles(sess,self.dataset.datasets["valid"], 10)
+                self.print_titles(sess,self.dataset.datasets["valid"], 2)
                 #print('Step %d: loss = %.2f' % (step, loss_value))
                 sys.stdout.flush()
 
@@ -405,7 +400,7 @@ class run_model:
 
             # if best_model exists pick the weights from there:
             if (os.path.exists(self.config.outdir + "best_model.meta")):
-                print ("Yes!!")
+                print ("Initialization Done from Best Model saved")
                 saver.restore(sess, self.config.outdir + "best_model")
                 best_val_loss = self.do_eval(sess, self.dataset.datasets["valid"])
                 test_loss    = self.do_eval(sess, self.dataset.datasets["test"])
@@ -414,6 +409,7 @@ class run_model:
 
 
             if (os.path.exists(self.config.outdir + "last_model.meta")):
+                print ("Initialization Done from Last Model saved")
                 saver.restore(sess, self.config.outdir + "last_model")
 
 
@@ -441,8 +437,6 @@ class run_model:
                 valid_loss = self.do_eval(sess, self.dataset.datasets["valid"])
 
                 #self.print_titles_in_files(sess, self.dataset.datasets["test"], epoch)
-                print ("Training Loss:{}".format(train_loss))
-                print ("Validation Loss:{}".format(valid_loss))
 
                 if valid_loss <= best_val_loss:
                     best_val_loss = valid_loss
@@ -457,7 +451,7 @@ class run_model:
                     print ("Results are getting no better. Early Stopping")
                     break
 
-                print ("Total time:{}".format(time.time() - start))
+                print ("Epoch: {} Training Loss : {} Validation Loss : {} Total time:{}".format(epoch, train_loss, valid_loss, time.time() - start))
 
             saver.restore(sess, self.config.outdir + 'best_model')
             test_loss = self.do_eval(sess, self.dataset.datasets["test"])

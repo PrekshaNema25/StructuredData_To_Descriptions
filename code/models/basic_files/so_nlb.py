@@ -232,7 +232,6 @@ def vad_decoder(decoder_inputs,
 
     distract_state = [distract_initial_state, distract_initial_state]
 
-    print ("Preksha " + scope.name)
     if attn_length_state is None:
       attn_length_state = attention_states.shape()[1]
 
@@ -368,7 +367,6 @@ def vad_decoder(decoder_inputs,
       if input_size.value is None:
         raise ValueError("Could not infer input size from input: %s" % inp.name)
 
-      print ("inp", inp.get_shape(), new_attns_state[0].get_shape())
 
 
       attn_fields = attns_state_fields[0]
@@ -383,7 +381,6 @@ def vad_decoder(decoder_inputs,
       # Run the RNN.
       cell_output, state = cell(x, state)
 
-      print ("cell_output", cell_output.get_shape())
       # Run the attention mechanism.
 
       if i == 0 and initial_state_attention:
@@ -423,15 +420,12 @@ def vad_decoder(decoder_inputs,
         output = linear([cell_output] + new_attns_state + attns_state_fields, output_size, True)
         #x_shape = variable_scope.get_variable(name = 'x_shape',shape=cell_output.get_shape())
 
-	print ("output_size", output.get_shape())
         if loop_function is not None:
           prev = output
         outputs.append(output)
 	attention_weights.append(new_attn_weights)
         attention_weights_fields.append(attn_vec_fields)
 
-        print ("Attn_vec_fields", attn_vec_fields)
-        print ("len of outputs", len(outputs), len(attention_weights), len(attention_weights_fields))
   return outputs, state, attention_weights, attention_weights_fields
 
 def vad_decoder_wrapper(decoder_inputs,
@@ -508,7 +502,6 @@ def vad_decoder_wrapper(decoder_inputs,
   with variable_scope.variable_scope(
     embedding_scope or "vad_decoder_wrapper", dtype=dtype,  reuse = True) as s1:
 
-    print ("Preksha", s1.name)
     embedding = variable_scope.get_variable("embedding",
                                             [num_symbols, embedding_size])
     loop_function = _extract_argmax_and_embed(
@@ -625,14 +618,6 @@ def vad_seq2seq(encoder_inputs,
 
     embedded_fields = array_ops.unpack(embedded_fields)
 
-    print ("Embedded Inputs length:", len(embedded_inputs))
-
-    print("Shape in embedded inputs:", embedded_inputs[0].get_shape())
-
-    print("Embedded fields:", embedded_fields[0].get_shape())
-
-
-    print ("Sequence length:", len(sequence_field_length))
     initial_state_fw = None
     initial_state_bw = None
     encoder_outputs = []
@@ -645,7 +630,6 @@ def vad_seq2seq(encoder_inputs,
 
           embedded_temp_inputs = embedded_inputs[i]
           embedded_temp_inputs = array_ops.transpose(embedded_temp_inputs, perm=[1,0,2])
-	  print("size of each input", embedded_temp_inputs.get_shape(), sequence_field_length[0].get_shape())
  
 	  temp_outputs_list = rnn.bidirectional_dynamic_rnn(cell_encoder_fw, 
 		cell_encoder_bw, embedded_temp_inputs, sequence_length=sequence_field_length[i], initial_state_fw = initial_state_fw, 
@@ -661,7 +645,6 @@ def vad_seq2seq(encoder_inputs,
 		encoder_outputs.append(temp_outputs[j])
 
 
-    print ("Encoder outputs", len(encoder_outputs), encoder_outputs[0].get_shape())
     #with variable_scope.variable_scope("Encoder_Cell"):
     #  encoder_outputs, encoder_state_fw, encoder_state_bw = rnn.bidirectional_rnn(
     #      cell_encoder_fw, cell_encoder_bw, embedded_inputs, dtype=dtype)
@@ -691,7 +674,6 @@ def vad_seq2seq(encoder_inputs,
       field_inputs.append(array_ops.concat(1, [field_states[i], embedded_fields[i]]))
     # Decoder.
 
-    print ("field_inputs", len(field_inputs), field_inputs[0].get_shape())
     with variable_scope.variable_scope("Field_Cell"):
 
       field_outputs, field_encoder_fw, field_encoder_bw = rnn.bidirectional_rnn(
@@ -758,14 +740,12 @@ def vad_seq2seq(encoder_inputs,
         if nest.is_sequence(state):
           state_list = nest.flatten(state)
 
-	print ("attention_weights", len(attention_weights))
         return outputs + state_list + attention_weights + attention_weights_fields
 
     outputs_and_state = control_flow_ops.cond(feed_previous,
                                               lambda: decoder(True),
                                               lambda: decoder(False))
     outputs_len = len(decoder_inputs)  # Outputs length same as decoder inputs.
-    print ("decoder input length", outputs_len)
     state_list = outputs_and_state[outputs_len:]
     attention_weights_fields = outputs_and_state[-outputs_len:]
     attention_weights = outputs_and_state[-(2*outputs_len):-outputs_len]
