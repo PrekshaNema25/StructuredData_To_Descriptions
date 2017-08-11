@@ -55,16 +55,37 @@ def main():
 
     parser.add_option(
 	"-f", "--feed-previous", dest="feed_previous")
+
+    parser.add_option(
+    "-d", "--embedding-dir", dest="embedding_dir")
+
+
+    parser.add_option(
+    "-k", "--is-stay-nlb", dest="is_stay_nlb")
+
+
+    parser.add_option(
+    "-u", "--num-tokens-per-field", dest="number_of_tokens_per_field")
+
+
+
     (option, args) = parser.parse_args(sys.argv)
+
 
 
     if (int(option.emb_tr) == 1):
         x = True
     else:
         x = False 
+
+    if (int(option.is_stay_nlb) == 'True'):
+    	is_stay_nlb = True
+    else:
+    	is_stay_nlb = False
     c = Config(float(option.lr), int(option.emb_size), int(option.hid_size), int(option.batch_size),
                 int(option.epochs), early_stop=int(option.early_stop), outdir= option.outdir, emb_tr=x, feed_previous=int(option.feed_previous), 
-		num_fields = int(option.num_fields), vocab_frequency=int(option.vocab_frequency))
+		num_fields = int(option.num_fields), vocab_frequency=int(option.vocab_frequency), embedding_dir = option.embedding_dir, is_stay_nlb = is_stay_nlb,
+		number_of_tokens_per_field = int(option.number_of_tokens_per_field))
 
 
     run_attention = run_model(option.wd, BasicAttention(), c)
