@@ -40,7 +40,7 @@ class BasicAttention:
         self.projection_W = tf.get_variable(name="Projected_W", shape=[hidden_size, len_vocab])
 
 
-    def inference(self, encoder_inputs1, decoder_inputs1, query_inputs,field_inputs,sequence_length_inputs,  embedding_size, feed_previous,
+    def inference(self, encoder_inputs1, decoder_inputs1,field_inputs,sequence_length_inputs,  embedding_size, feed_previous,
                   len_vocab, hidden_size, weights, embedding_trainable, config,  initial_embedding = None, c=None):
 
         """ Builds the graph for the basic attetion model
@@ -71,12 +71,10 @@ class BasicAttention:
         #enc_cell = DistractionLSTMCell(hidden_size)
         ei = tf.unpack(encoder_inputs1)
         di = tf.unpack(decoder_inputs1)
-        qi = tf.unpack(query_inputs)
         fi = tf.unpack(field_inputs)
         si = tf.unpack(sequence_length_inputs)
         outputs, state, attention_weights_tokens, attention_weights_fields  = vad_seq2seq(encoder_inputs = ei,
                                                 decoder_inputs = di,
-                                                query_inputs = qi,
 						field_inputs = fi, 
                                                 cell_encoder_fw = self.enc_cell,
                                                 cell_encoder_bw = cell_encoder_bw,

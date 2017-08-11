@@ -78,7 +78,7 @@ def main():
     else:
         x = False 
 
-    if (int(option.is_stay_nlb) == 'True'):
+    if (option.is_stay_nlb == 'True'):
     	is_stay_nlb = True
     else:
     	is_stay_nlb = False
