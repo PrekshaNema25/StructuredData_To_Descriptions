@@ -45,18 +45,26 @@ def main():
         help="Output directory where the model will be stored", default="../out/")
 
     parser.add_option(
-        "-x", "--emb-train", dest="emb_tr")
+        "-x", "--emb-train", help= "Whether the embeddings are trainable or not", dest="emb_tr")
 
 
     parser.add_option(
-	"-p", "--vocab_frequency", dest="vocab_frequency")
+    "-p", "--vocab-freq", help = "The frequency cutoff for the vocabulary" , dest="vocab_frequency")
+    parser.add_option(
+    "-m", "--num-fields", help = "Number of field cutoff set for the wikiinfobox", dest="num_fields")
 
     parser.add_option(
-	"-f", "--feed-previous", dest="feed_previous")
+    "-f", "--feed-previous", help = " Epoch after which feed previous will be set to true",  dest="feed_previous")
 
     parser.add_option(
-    "-k", "--embedding-dir", dest="embedding_dir")
+    "-d", "--embedding-dir", help = "Directory that contains the embedding file", dest="embedding_dir")
+
+
+    parser.add_option(
+    "-c", "--print_frequency",help = "Print after these number of steps",  dest="print_frequency")
+
     (option, args) = parser.parse_args(sys.argv)
+
 
     if (int(option.emb_tr) == 1):
         x = True
@@ -64,7 +72,7 @@ def main():
         x = False 
     c = Config(float(option.lr), int(option.emb_size), int(option.hid_size), int(option.batch_size),
                 int(option.epochs), early_stop=int(option.early_stop), outdir= option.outdir, emb_tr=x, feed_previous=int(option.feed_previous), 
-		vocab_frequency = int(option.vocab_frequency), embedding_dir = option.embedding_dir)
+		vocab_frequency = int(option.vocab_frequency), embedding_dir = option.embedding_dir, print_frequency = int(option.print_frequency))
 
     run_attention = run_model(option.wd, BasicAttention(), c)
     run_attention.run_training()
