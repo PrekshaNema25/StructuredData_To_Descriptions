@@ -9,9 +9,9 @@ import sys
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
 from optparse import OptionParser
-from models.vad_model_eval import *
+from models.vad_model import *
 from models.basic_files.dataset_iterator import *
-from run_model_eval import *
+from run_training_vad import *
 import os
 
 

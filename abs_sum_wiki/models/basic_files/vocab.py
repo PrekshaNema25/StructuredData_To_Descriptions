@@ -62,7 +62,7 @@ class Vocab():
                         sentences.extend(words)
 
             model = Word2Vec(sentences, size=embedding_size, min_count=0)
-            model.save(embedding_dir + "embeddings.bin")
+            model.save(embedding_dir + "embeddings")
 
         self.embeddings_model = model
         return model

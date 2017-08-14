@@ -183,13 +183,13 @@ class PadDataset:
             self.datasets[i] = self.load_data_file(i, temp_t, temp_v)
 
 
-    def __init__(self,  working_dir = "../Data/", embedding_size=100, vocab_frequency = 73, global_count = 0):
+    def __init__(self,  working_dir = "../Data/", embedding_size=100, vocab_frequency = 73, embedding_dir = "../Data/", global_count = 0):
         filenames = [working_dir + "train_summary" , working_dir + "train_content"]
         #filenames = ["../DP_data/all_files"]
 
         self.global_count = 0
         self.vocab = Vocab()
-        self.vocab.construct_vocab(filenames,embedding_size, vocab_frequency)
+        self.vocab.construct_vocab(filenames,embedding_size, vocab_frequency, embedding_dir)
         self.load_data(working_dir)
 
     def length_vocab(self):

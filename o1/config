@@ -1,0 +1,9 @@
+Learning rate 0.0004
+Embedding size 20
+hidden size 10
+Batch size 10
+Max Epochs2
+outdir ../o1/
+Early stop 1
+Embedding trainingFalse
+Feed Previous 2
