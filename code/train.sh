@@ -11,6 +11,9 @@
 
 data=data_
 embedding=_embedding
+
+mkdir -p ../output
+
 if [ "$2" == "weathergov" ]
 then
 	tokens_per_field=10
