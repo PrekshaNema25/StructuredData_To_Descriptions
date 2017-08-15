@@ -38,6 +38,9 @@ Given Wikipedia infoboxes for personalities generated natural language text
     
     To tweak the hyperparameters for the above models please do the required changes in train.sh.
     
+    The best hyperparameter setting for "german" and "french" dataset has been mentioned in the 
+    comments in train.sh
+    
  ## Various Proposed Models: Inference
      Make sure that the current working directory is code/
     
