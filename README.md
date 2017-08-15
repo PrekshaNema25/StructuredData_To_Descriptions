@@ -91,8 +91,8 @@ Given Wikipedia infoboxes for personalities generated natural language text
 
 
  ### German WikiBio
- * **NLB Predicted Summary**      :  matthias hagner -lrb- * 15 .oktober 1968 in köln -rrb- ist ein ehemaliger deutscher fußballspieler und - trainer .
- * **Hierarchy Predicted Summary**: matthias hagner -lrb- 15 .august 1968 in köln -rrb- ist ein ehemaliger deutscher fußballspieler und jetziger - trainer .
+ * **NLB Predicted Summary**      :  matthias hagner -lrb- 15 .august 1968 in köln -rrb- ist ein ehemaliger deutscher fußballspieler und jetziger - trainer .
+ * **Hierarchy Predicted Summary**:  matthias hagner -lrb- * 15 .oktober 1968 in köln -rrb- ist ein ehemaliger deutscher fußballspieler und - trainer .
  * **Seq2seq Predicted Summary**  :  matthias kurzname -lrb- * 15 .august 1968 in kurzname -rrb- ist ein deutscher fußballspieler . 
 
  * **Ground Truth** : Matthias Hagner (15. August 1974 in Gießen) ist ein ehemaliger deutscher Fußballspieler und jetziger -trainer.
