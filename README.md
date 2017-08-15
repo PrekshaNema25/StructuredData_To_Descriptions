@@ -82,8 +82,8 @@ Given Wikipedia infoboxes for personalities generated natural language text
  <th> Never Look Back </th>
  </tr>
  <tr>
- <td><img src="/images/eng_hier.jpg" height="500" width="500"> </td>
- <td> <img src="/images/eng_nlb.jpg" height="500" width="500"></td>
+ <td><img src="/images/eng_hier.jpg" height="300" width="300"> </td>
+ <td> <img src="/images/eng_nlb.jpg" height="300" width="300"></td>
  </tr>
  </table>
 
