@@ -76,5 +76,4 @@ Given Wikipedia infoboxes for personalities generated natural language text
 
  **Ground Truth** : John Allen Ford -lrb born July 31, 1966 -rrb-  is a former American football wide receiver in the National Football League for the Detroit Lions.
 
-![Hierarchy Attention Plot]('/images/eng_hier.jpg')
-![NLB Attention Plot]('/images/eng_nlb.jpg')
+<img src='/images/eng_hier.jpg'> <img src='/images/eng_nlb.jpg'>
