@@ -27,7 +27,8 @@ Given Wikipedia infoboxes for personalities generated natural language text
     * To run the mei++ model:
         ./train.sh mei_plus
    
-    To tweak the hyperparameters for the above models please do the required changes in train.sh. The current configurations
-    that have set are set based on the best performing hyperparameters during our experiments for English Wikibio Dataset. 
+    To tweak the hyperparameters for the above models please do the required changes in train.sh.
+    The current configurations that have set are set based on the best performing hyperparameters
+    during our experiments for English Wikibio Dataset. 
     
     
