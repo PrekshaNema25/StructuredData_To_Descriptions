@@ -26,14 +26,16 @@ Given Wikipedia infoboxes for personalities generated natural language text
 ## Various Proposed Model
     cd code
     * To run only the Seq2seq model:
-      ./train.sh seq2seq
+      ./train.sh seq2seq english
     * To run the hierarchy model:
-       ./train.sh hierarchy 
+       ./train.sh hierarchy english
     * To run the stay_on + never_look_back model:
-        ./train.sh nlb
+        ./train.sh nlb english
     * To run the mei++ model:
-        ./train.sh mei_plus
+        ./train.sh mei_plus english
    
+    Note that the second argument could take "german" "french" "weathergov" also as an argument 
+    
     To tweak the hyperparameters for the above models please do the required changes in train.sh.
     The current configurations that have set are set based on the best performing hyperparameters
     during our experiments for English Wikibio Dataset. 
