@@ -91,11 +91,11 @@ Given Wikipedia infoboxes for personalities generated natural language text
 
 
  ### German WikiBio
- * **NLB Predicted Summary**      :  john ford -lrb- born july 31 , 1966 in belle glade , florida -rrb- is a former american football wide receiver in the national football league for the detroit lions . 
- * **Hierarchy Predicted Summary**: john ford -lrb- born july 31 , 1966 in belle glade , florida -rrb- is a former american football wide receiver in the national football league .
- * **Seq2seq Predicted Summary**  :  john ford -lrb- born april 31 , 1966 in belle glade , florida -rrb- is a former american football wide receiver in the national football league for the . 
+ * **NLB Predicted Summary**      :  matthias hagner -lrb- * 15 .oktober 1968 in köln -rrb- ist ein ehemaliger deutscher fußballspieler und - trainer .
+ * **Hierarchy Predicted Summary**: matthias hagner -lrb- 15 .august 1968 in köln -rrb- ist ein ehemaliger deutscher fußballspieler und jetziger - trainer .
+ * **Seq2seq Predicted Summary**  :  matthias kurzname -lrb- * 15 .august 1968 in kurzname -rrb- ist ein deutscher fußballspieler . 
 
- * **Ground Truth** : John Allen Ford -lrb born July 31, 1966 -rrb-  is a former American football wide receiver in the National Football League for the Detroit Lions.
+ * **Ground Truth** : Matthias Hagner (15. August 1974 in Gießen) ist ein ehemaliger deutscher Fußballspieler und jetziger -trainer.
  
      <center>
      <table style="width:100%">
@@ -104,8 +104,8 @@ Given Wikipedia infoboxes for personalities generated natural language text
      <th> Never Look Back </th>
      </tr>
      <tr>
-     <td><img src="/images/eng_hier.jpg" height="400" width="400"> </td>
-     <td> <img src="/images/eng_nlb.jpg" height="400" width="400"></td>
+     <td><img src="/images/german_hier.jpg" height="400" width="400"> </td>
+     <td> <img src="/images/german_nlb.jpg" height="400" width="400"></td>
      </tr>
      </table>
      </center>
