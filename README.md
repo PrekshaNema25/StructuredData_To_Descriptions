@@ -109,3 +109,9 @@ Given Wikipedia infoboxes for personalities generated natural language text
      </tr>
      </table>
      </center>
+
+## Evaluation Scripts:
+Sources Referred for Evaluation script are same as that mentioned in Lebret et al, 2016:
+* [Bleu_4](https://github.com/tylin/coco-caption) 
+* [ROUGE_4](https://github.com/gregdurrett/berkeley-doc-summarizer/blob/master/rouge/ROUGE/ROUGE-1.5.5.pl)
+* [NIST_4](ftp://jaguar.ncsl.nist.gov/mt/resources/mteval-v13.pl)
