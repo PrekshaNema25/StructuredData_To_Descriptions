@@ -9,7 +9,7 @@ import sys
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
 from optparse import OptionParser
-from models.basic_files.dataset_iterator import *
+from dataset_iterator_hier_15 import *
 import os
 
 class Config:
@@ -19,9 +19,10 @@ class Config:
     """ 
 
     def __init__(self, learning_rate=0.0001, embedding_size=50, hidden_size=100,
-               batch_size = 64,max_epochs = 20, max_sequence_length_content = 100,
-               max_sequence_length_title=50, max_sequence_length_query = 20, early_stop=100, outdir="../out/",
-               emb_tr=False, feed_previous = 5, vocab_frequency = 73, embedding_dir = '../Data'):
+               batch_size = 64,max_epochs = 20, max_sequence_length_content = 100, num_fields  = 20,
+               max_sequence_length_title=51, max_sequence_length_query = 2, early_stop=100, outdir="../out/",
+               emb_tr=False, feed_previous = 5, vocab_frequency=74, gamma_param = 7.5, embedding_dir="../Data/",
+	       print_frequency=1000):
 
         """ Initialize the object with the parameters.
 
@@ -38,14 +39,14 @@ class Config:
         """
 
 
-	print ("Config", emb_tr)
         config_file = open(outdir + "/config", "w")
 
         self.learning_rate = learning_rate
         self.embedding_size = embedding_size
         self.max_sequence_length_content = max_sequence_length_content
+        self.max_sequence_length_field   = num_fields
         self.max_sequence_length_title   = max_sequence_length_title
-        self.max_sequence_lenght_query   = max_sequence_length_query
+        self.max_sequence_length_query   = max_sequence_length_query
         self.hidden_size = hidden_size
         self.batch_size = batch_size
         self.max_epochs = max_epochs
@@ -53,8 +54,10 @@ class Config:
         self.emb_tr     = emb_tr
         self.early_stop = early_stop
         self.embedding_dir = embedding_dir
-        self.feed_previous = feed_previous
-        self.vocab_frequency = vocab_frequency
+	self.vocab_frequency = vocab_frequency
+	self.feed_previous = feed_previous
+	self.gamma_param = gamma_param
+	self.print_frequency = print_frequency
 
         config_file.write("Learning rate " + str(self.learning_rate) + "\n")
         config_file.write("Embedding size " + str(self.embedding_size) + "\n")
@@ -96,6 +99,9 @@ class run_inference:
 
         self.encode_input_placeholder  = tf.placeholder(tf.int32, shape=(self.config.max_sequence_length_content, None), name ='encode')
         self.decode_input_placeholder  = tf.placeholder(tf.int32, shape=(self.config.max_sequence_length_title, None),   name = 'decode')
+        self.query_input_placeholder   = tf.placeholder(tf.int32, shape=(self.config.max_sequence_length_query, None),   name = 'query')
+        self.field_input_placeholder   = tf.placeholder(tf.int32, shape=(self.config.max_sequence_length_field, None),   name = 'field')
+        self.sequence_length_input_placeholder   = tf.placeholder(tf.int64, shape=(self.config.max_sequence_length_field, None),   name = 'slength')
         self.label_placeholder         = tf.placeholder(tf.int32, shape=(self.config.max_sequence_length_title, None),   name = 'labels')
         self.weights_placeholder       = tf.placeholder(tf.int32, shape=(self.config.max_sequence_length_title, None),   name = 'weights')
         self.feed_previous_placeholder = tf.placeholder(tf.bool, name='feed_previous')
@@ -105,7 +111,7 @@ class run_inference:
         #self.max_title_per_batch_p     = tf.placeholder(tf.int32, name='max_title')
 
 
-    def fill_feed_dict(self, encoder_inputs, decoder_inputs, labels, query, weights, feed_previous=False):
+    def fill_feed_dict(self, encoder_inputs, decoder_inputs, labels, query, field, sequence_length,  weights, feed_previous=False):
 
         """ Fills the feed_dict for training at a given time_step.
 
@@ -127,6 +133,9 @@ class run_inference:
         self.encode_input_placeholder : encoder_inputs,
         self.decode_input_placeholder : decoder_inputs,
         self.label_placeholder        : labels,
+        self.query_input_placeholder  : query, 
+        self.field_input_placeholder  : field, 
+        self.sequence_length_input_placeholder  : sequence_length, 
         self.weights_placeholder      : weights,
         self.feed_previous_placeholder: feed_previous,
         }
@@ -148,6 +157,7 @@ class run_inference:
         """
 
         start_time = time.time()
+        print(self.dataset.datasets["train"])
         steps_per_epoch = int(math.ceil(float(self.dataset.datasets["train"].number_of_examples) / float(self.config.batch_size)))
 
         total_loss = 0
@@ -157,7 +167,7 @@ class run_inference:
             # Get the next batch
 
 
-            train_content, train_title, train_labels, train_weights, max_content, max_title= self.dataset.next_batch(
+            train_content, train_title, train_labels, train_query, train_field, sequence_length, train_weights, max_content, max_title,max_query = self.dataset.next_batch(
                 self.dataset.datasets["train"],self.config.batch_size, True)
 
 
@@ -177,11 +187,12 @@ class run_inference:
 
             feed_previous = False
             # Feed the placeholders with encoder_inputs,decoder_inputs,decoder_labels
-            feed_dict = self.fill_feed_dict(train_content, train_title, train_labels,train_weights, feed_previous)
+            feed_dict = self.fill_feed_dict(train_content, train_title, train_labels, train_query, train_field, sequence_length, train_weights, feed_previous)
 
 
             #Minimize the loss
-            _, loss_value, outputs  = sess.run([self.train_op, self.loss_op, self.logits], feed_dict=feed_dict)
+            outputs = sess.run(self.logits, feed_dict = feed_dict)
+            _, loss_value = sess.run([self.train_op, self.loss_op], feed_dict=feed_dict)
             total_loss  += loss_value
 
             duration = time.time() - start_time
@@ -200,6 +211,7 @@ class run_inference:
 	    #x = sess.run(self.model.grad, feed_dict = feed_dict)
             #print (x)
 
+
             sys.stdout.flush()
             # Check the loss with forward propogation
             if (step + 1 == steps_per_epoch ) or ((step  + 1) % self.config.print_frequency == 0):
@@ -210,23 +222,13 @@ class run_inference:
                 # Evaluate against the training set.
                 print('Training Data Eval:')
                 self.print_titles(sess, self.dataset.datasets["train"], 2)
-                    
+
                 # Evaluate against the validation set.
                 print('Step %d: loss = %.2f' % (step, loss_value))
                 print('Validation Data Eval:')
                 #loss_value = self.do_eval(sess,self.dataset.datasets["valid"])
                 self.print_titles(sess,self.dataset.datasets["valid"], 2)
                 #print('Step %d: loss = %.2f' % (step, loss_value))
-                    
-                # Evaluate against the test set.
-                #print('Test Data Eval:')
-                #loss_value = self.do_eval(sess,self.dataset.datasets["test"])
-                #self.print_titles(sess,self.dataset.datasets["test"], 10)
-                #print('Step %d: loss = %.2f' % (step, loss_value))
-
-                #self.print_titles_in_files(sess, self.dataset.datasets["test"])
-                #self.print_titles_in_files(sess, self.dataset.datasets["train_test"])
-                #self.print_titles_in_files(sess, self.dataset.datasets["valid"])
                 sys.stdout.flush()
 
         return float(total_loss)/ float(steps_per_epoch)
@@ -249,10 +251,10 @@ class run_inference:
         steps_per_epoch =  int(math.ceil(float(data_set.number_of_examples) / float(self.config.batch_size)))
 
         for step in xrange(steps_per_epoch): 
-            train_content, train_title, train_labels, train_weights, max_content, max_title= self.dataset.next_batch(
+            train_content, train_title, train_labels, train_query, train_field, sequence_length, train_weights, max_content, max_title, max_query = self.dataset.next_batch(
                 data_set,self.config.batch_size, False)
             
-            feed_dict  = self.fill_feed_dict(train_content, train_title, train_labels, train_weights, feed_previous = True)
+            feed_dict  = self.fill_feed_dict(train_content, train_title, train_labels, train_query, train_field, sequence_length,  train_weights, feed_previous = True)
             loss_value = sess.run(self.loss_op, feed_dict=feed_dict)
             total_loss += loss_value
 
@@ -260,7 +262,7 @@ class run_inference:
 
 
 
-    def print_titles_in_files(self, sess, data_set, epoch = 1000):
+    def print_titles_in_files(self, sess, data_set, epoch):
 
         """ Prints the titles for the requested examples.
 
@@ -271,28 +273,26 @@ class run_inference:
 
         """
         total_loss = 0
+        awf  = []
+
         f1 = open(self.config.outdir + data_set.name + "_final_results" + str(epoch), "wb")
-        f2 = open(self.config.outdir + data_set.name + "_attention_weights" + str(epoch), "wb")
+        f2 = open(self.config.outdir + data_set.name + "_attention_weights" + str(epoch) , "wb")
         steps_per_epoch =  int(math.ceil(float(data_set.number_of_examples) / float(self.config.batch_size)))
 
         for step in xrange(steps_per_epoch):
-            train_content, train_title, train_labels,  train_weights, max_content, max_title = self.dataset.next_batch(
+            train_content, train_title, train_labels, train_query, train_field, sequence_length, train_weights, max_content, max_title, max_query = self.dataset.next_batch(
                 data_set,self.config.batch_size, False)
 
-            feed_dict = self.fill_feed_dict(train_content, train_title, train_labels, train_weights, feed_previous = True)
+            feed_dict = self.fill_feed_dict(train_content, train_title, train_labels, train_query, train_field, sequence_length, train_weights, feed_previous = True)
 
-            _decoder_states_ , attention_weights = sess.run([self.logits, self.attention_weights], feed_dict=feed_dict)
-            print('attn_wt shape', np.shape(attention_weights))
-            print('dec_state shape', np.shape(_decoder_states_))
-
+            _decoder_states_ , attention_weights, attention_weights_fields = sess.run([self.logits, self.attention_weights, self.attention_weights_fields], feed_dict=feed_dict)
 
             attention_states = np.array([np.argmax(i,1) for i in attention_weights])
-            # Pack the list of size max_sequence_length to a tensor
+           # Pack the list of size max_sequence_length to a tensor
             decoder_states = np.array([np.argmax(i,1) for i in _decoder_states_])
-
+            awf.append(attention_weights_fields)
             # tensor will be converted to [batch_size * sequence_length * symbols]
             ds = np.transpose(decoder_states)
-            #attention_states = np.transpose(attention_states)
             attn_state = np.transpose(attention_states)   
             true_labels = np.transpose(train_labels)
             # Converts this to a length of batch sizes
@@ -300,7 +300,6 @@ class run_inference:
             final_as = attn_state.tolist()
             true_labels = true_labels.tolist()
 
-            #print(final_ds)
             for i, states in enumerate(final_ds):
 
                 # Get the index of the highest scoring symbol for each time step
@@ -311,7 +310,8 @@ class run_inference:
                 f1.write(t +"\n")
                 x = " ".join(str(m) for m in final_as[i])
                 f2.write(x + "\n")
-
+        
+        pickle.dump(awf, open(self.config.outdir + data_set.name + "_awf", "wb"))
 
     def print_titles(self, sess, data_set, total_examples):
 
@@ -324,10 +324,10 @@ class run_inference:
 
         """
 
-        train_content, train_title, train_labels, train_weights, max_content, max_title = self.dataset.next_batch(
+        train_content, train_title, train_labels, train_query, train_field, sequence_length, train_weights, max_content, max_title, max_query = self.dataset.next_batch(
             data_set, total_examples, False)
 
-        feed_dict = self.fill_feed_dict(train_content, train_title, train_labels, train_weights, feed_previous = True)
+        feed_dict = self.fill_feed_dict(train_content, train_title, train_labels, train_query, train_field, sequence_length,  train_weights, feed_previous = True)
 
         _decoder_states_ = sess.run(self.logits, feed_dict=feed_dict)
 
@@ -361,23 +361,20 @@ class run_inference:
 
             tf.set_random_seed(1357)
 
-            self.config.max_sequence_length_content = max(val.max_length_content for i,val in self.dataset.datasets.iteritems())
-            self.config.max_sequence_length_title = max(val.max_length_title for i,val in self.dataset.datasets.iteritems())
-
             len_vocab = self.dataset.length_vocab()
             initial_embeddings = self.dataset.vocab.embeddings
 
             self.add_placeholders()
 
             # Build a Graph that computes predictions from the inference model.
-            self.logits, self.attention_weights  = self.model.inference(self.encode_input_placeholder, self.decode_input_placeholder, 
-                                          self.config.embedding_size,
+            self.logits, self.attention_weights, self.attention_weights_fields  = self.model.inference(self.encode_input_placeholder, self.decode_input_placeholder, 
+                                          self.query_input_placeholder, self.field_input_placeholder, self.sequence_length_input_placeholder,  self.config.embedding_size,
                                           self.feed_previous_placeholder, len_vocab, self.config.hidden_size,
                                           weights = self.weights_placeholder, initial_embedding=initial_embeddings, 
-                                          embedding_trainable=self.config.emb_tr)
+                                          embedding_trainable=self.config.emb_tr, config=self.config)
 
             # Add to the Graph the Ops for loss calculation.
-            self.loss_op = self.model.loss_op(self.logits, self.label_placeholder, self.weights_placeholder, len_vocab)
+            self.loss_op = self.model.loss_op(self.logits, self.label_placeholder, self.weights_placeholder, len_vocab, self.attention_weights_fields, self.config.gamma_param)
 
             # Add to the Graph the Ops that calculate and apply gradients.
             self.train_op = self.model.training(self.loss_op, self.config.learning_rate)
@@ -397,17 +394,12 @@ class run_inference:
             summary_writer = tf.train.SummaryWriter(self.config.outdir + "Logs" ,sess.graph)
 
 
-            # if best_model exists pick the weights from there:
-            if not (os.path.exists(self.config.outdir + "best_model")):
-                print ("Can't run inference, best model not saved")
-                return 
-
             saver.restore(sess, self.config.outdir + 'best_model')
             test_loss = self.do_eval(sess, self.dataset.datasets["test"])
 
-            print ("Test Loss for the best saved model:{}".format(test_loss))
-            self.print_titles_in_files(sess, self.dataset.datasets["test"])
-            self.print_titles_in_files(sess, self.dataset.datasets["valid"])
+            print ("Test Loss:{}".format(test_loss))
+            self.print_titles_in_files(sess, self.dataset.datasets["test"], "")
+            self.print_titles_in_files(sess, self.dataset.datasets["valid"], "")
 
 def main():
     parser = OptionParser()

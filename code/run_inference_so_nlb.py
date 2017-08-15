@@ -70,7 +70,7 @@ class Config:
         config_file.close() 
 
 
-class run_model:
+class run_inference:
 
     def __init__(self, wd, bA, config = None):
 
@@ -266,10 +266,9 @@ class run_model:
         """
         total_loss = 0
         awf  = []
-        awt = []
 
-        f1 = open(self.config.outdir + data_set.name + "_final_results" + str(epoch + 10 ), "wb")
-        f2 = open(self.config.outdir + data_set.name + "_attention_weights" + str(epoch +10) , "wb")
+        f1 = open(self.config.outdir + data_set.name + "_final_results" + str(epoch), "wb")
+        f2 = open(self.config.outdir + data_set.name + "_attention_weights" + str(epoch) , "wb")
         steps_per_epoch =  int(math.ceil(float(data_set.number_of_examples) / float(self.config.batch_size)))
 
         for step in xrange(steps_per_epoch):
@@ -288,7 +287,6 @@ class run_model:
            # Pack the list of size max_sequence_length to a tensor
             decoder_states = np.array([np.argmax(i,1) for i in _decoder_states_])
             awf.append(attention_weights_fields)
-            awt.append(attention_weights)
             # tensor will be converted to [batch_size * sequence_length * symbols]
             ds = np.transpose(decoder_states)
             attn_state = np.transpose(attention_states)   
@@ -311,7 +309,6 @@ class run_model:
                 f2.write(x + "\n")
         
         pickle.dump(awf, open(self.config.outdir + data_set.name + "_awf", "wb"))
-        pickle.dump(awt, open(self.config.outdir + data_set.name + "_awt", "wb"))
 
     def print_titles(self, sess, data_set, total_examples):
 
@@ -351,7 +348,7 @@ class run_model:
 
 
 
-    def run_training(self):
+    def run_testing(self):
 
         """ Train the graph for a number of epochs 
         """
@@ -403,8 +400,8 @@ class run_model:
             test_loss = self.do_eval(sess, self.dataset.datasets["test"])
 
             print ("Test Loss:{}".format(test_loss))
-            self.print_titles_in_files(sess, self.dataset.datasets["test"], 100)
-            self.print_titles_in_files(sess, self.dataset.datasets["valid"], 100)
+            self.print_titles_in_files(sess, self.dataset.datasets["test"], "")
+            self.print_titles_in_files(sess, self.dataset.datasets["valid"], "")
 
 def main():
     parser = OptionParser()
