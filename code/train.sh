@@ -9,6 +9,8 @@
 # Setting some hyperparamenters based on the dataset
 # that has been passed
 
+data=data_
+embedding=_embedding
 if [ "$2" == "weathergov" ]
 then
 	tokens_per_field=10
@@ -36,13 +38,24 @@ fi
 tokens_per_field = 5
 if [ "$1" == "seq2seq" ]
 then 
-	python run_training_vad.py
+	python seq2seq_run_model.py --work-dir $data$2 --learning-rate 0.0004 --embedding-size 300
+	--hidden-size 512 --batch-size 64 --epochs 20 --early-stop 5 --output_dir ../output --emb-train
+False --vocab-freq $vocab_frequency_cutoff --num-fields $num_fields --feed-previous 20 --embedding-dir $2$embedding --print_frequency 1000
 
 elif [ "$1" == "hierarchy" ]
+	python so_nlb_run_model.py --work-dir $data$2 --learning-rate 0.0004 --embedding-size 300
+	--hidden-size 512 --batch-size 64 --epochs 20 --early-stop 5 --output_dir ../output --emb-train
+False --vocab-freq $vocab_frequency_cutoff --num-fields $num_fields --feed-previous 20 --embedding-dir $2$embedding --is-stay-nlb False --num-tokens-per-field $tokens_per_field --print_frequency 1000
+
 then 
 elif [ "$1" == "nlb" ]
 then
+	python so_nlb_run_model.py --work-dir $data$2 --learning-rate 0.0004 --embedding-size 300
+	--hidden-size 512 --batch-size 64 --epochs 20 --early-stop 5 --output_dir ../output --emb-train
+False --vocab-freq $vocab_frequency_cutoff --num-fields $num_fields --feed-previous 20 --embedding-dir $2$embedding --is-stay-nlb True --num-tokens-per-field $tokens_per_field --print_frequency 1000
+
 elif [ "$1" == "mei_plus" ]
 then 
+	
 fi
 

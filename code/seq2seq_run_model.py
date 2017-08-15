@@ -66,7 +66,7 @@ def main():
     (option, args) = parser.parse_args(sys.argv)
 
 
-    if (int(option.emb_tr) == 1):
+    if (option.emb_tr == 'True'):
         x = True
     else:
         x = False 
