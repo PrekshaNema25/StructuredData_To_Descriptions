@@ -38,7 +38,7 @@ Given Wikipedia infoboxes for personalities generated natural language text
     
     To tweak the hyperparameters for the above models please do the required changes in train.sh.
     
- ## Various Proposed Models: Testing
+ ## Various Proposed Models: Inference
      Make sure that the current working directory is code/
     
      The syntax for running the inference is also similar to running the training 
@@ -70,4 +70,11 @@ Given Wikipedia infoboxes for personalities generated natural language text
  
  ## Some sample predictions and plots generated:
  
+     * NLB Predicted Summary      :  john ford -lrb- born july 31 , 1966 in belle glade , florida -rrb- is a former american football wide receiver in the national football league for the detroit lions . 
+     * Hierarchy Predicted Summary: john ford -lrb- born july 31 , 1966 in belle glade , florida -rrb- is a former american football wide receiver in the national football league .
+     * Seq2seq Predicted Summary  :  john ford -lrb- born april 31 , 1966 in belle glade , florida -rrb- is a former american football wide receiver in the national football league for the . 
      
+     Ground Truth : John Allen Ford -lrb born July 31, 1966 -rrb-  is a former American football wide receiver in the National Football League for the Detroit Lions.
+     
+![Hierarchy Attention Plot]('/images/eng_hier.jpg')
+![NLB Attention Plot]('/images/eng_nlb.jpg')
