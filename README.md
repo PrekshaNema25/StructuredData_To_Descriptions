@@ -88,3 +88,24 @@ Given Wikipedia infoboxes for personalities generated natural language text
      </tr>
      </table>
      </center>
+
+
+ ### German WikiBio
+ * **NLB Predicted Summary**      :  john ford -lrb- born july 31 , 1966 in belle glade , florida -rrb- is a former american football wide receiver in the national football league for the detroit lions . 
+ * **Hierarchy Predicted Summary**: john ford -lrb- born july 31 , 1966 in belle glade , florida -rrb- is a former american football wide receiver in the national football league .
+ * **Seq2seq Predicted Summary**  :  john ford -lrb- born april 31 , 1966 in belle glade , florida -rrb- is a former american football wide receiver in the national football league for the . 
+
+ * **Ground Truth** : John Allen Ford -lrb born July 31, 1966 -rrb-  is a former American football wide receiver in the National Football League for the Detroit Lions.
+ 
+     <center>
+     <table style="width:100%">
+     <tr>
+     <th> Hierarchy </th>
+     <th> Never Look Back </th>
+     </tr>
+     <tr>
+     <td><img src="/images/eng_hier.jpg" height="400" width="400"> </td>
+     <td> <img src="/images/eng_nlb.jpg" height="400" width="400"></td>
+     </tr>
+     </table>
+     </center>
