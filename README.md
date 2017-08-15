@@ -23,7 +23,7 @@ Given Wikipedia infoboxes for personalities generated natural language text
     * German  Embedding: bash data_extraction_scripts/extract_embedding german german_embedding
     
     
-## Various Proposed Model
+## Various Proposed Model: Training
     cd code
     * To run only the Seq2seq model:
       ./train.sh seq2seq english
@@ -37,9 +37,44 @@ Given Wikipedia infoboxes for personalities generated natural language text
     Note that the second argument could take "german" "french" "weathergov" also as an argument 
     
     To tweak the hyperparameters for the above models please do the required changes in train.sh.
-    The current configurations that have set are set based on the best performing hyperparameters
-    during our experiments for English Wikibio Dataset. 
     
+ ## Various Proposed Models: Inference
+     Make sure that the current working directory is code/
+    
+     The syntax for running the inference is also similar to running the training 
+ 
+     * Seq2seq model:
+      ./test.sh seq2seq english
+     *  Hierarchy model:
+       ./test.sh hierarchy english
+     * stay_on + never_look_back model:
+        ./test.sh nlb english
+     * mei++ model:
+        ./test.sh mei_plus english
+ 
+ 
+ ## Post Processing Scripts: Copy Mechanism and Generate Attention Weight Plots:
+     cd postprocess_scripts
+     
+     # sh extract_labels_plots.sh <output_dir> <data_directory>
+     sh extract_labels_plots.sh ../output ../data_french
+     
+     Please note:
+        * The post process copy will not work for Mei_plus model, as the attention mechanism in this model, 
+        never focusses on the token level encoder. Also it is not necessary for weathergov data, as the vocabulary
+        size is very small, thus you could get the probability distribution across all the tokens
+        * The Attention Weight Plots have been against field level information. Thus this part of the
+        code won't work for basic seq2seq model.
+ 
+ 
+ 
+ ## Some sample predictions and plots generated:
+ 
+ * **NLB Predicted Summary**      :  john ford -lrb- born july 31 , 1966 in belle glade , florida -rrb- is a former american football wide receiver in the national football league for the detroit lions . 
+ * **Hierarchy Predicted Summary**: john ford -lrb- born july 31 , 1966 in belle glade , florida -rrb- is a former american football wide receiver in the national football league .
+ * **Seq2seq Predicted Summary**  :  john ford -lrb- born april 31 , 1966 in belle glade , florida -rrb- is a former american football wide receiver in the national football league for the . 
 
-    
-    
+ **Ground Truth** : John Allen Ford -lrb born July 31, 1966 -rrb-  is a former American football wide receiver in the National Football League for the Detroit Lions.
+
+![Hierarchy Attention Plot]('/images/eng_hier.jpg')
+![NLB Attention Plot]('/images/eng_nlb.jpg')
