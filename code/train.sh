@@ -56,6 +56,8 @@ False --vocab-freq $vocab_frequency_cutoff --num-fields $num_fields --feed-previ
 
 elif [ "$1" == "mei_plus" ]
 then 
-	
+	python mei_plus_run_model.py --work-dir $data$2 --learning-rate 0.0004 --embedding-size 300
+	--hidden-size 512 --batch-size 64 --epochs 20 --early-stop 5 --output_dir ../output --emb-train
+False --gamma_tunable 10 --vocab-freq $vocab_frequency_cutoff --num-fields $num_fields --feed-previous 20 --embedding-dir $2$embedding --is-stay-nlb True --num-tokens-per-field $tokens_per_field --print_frequency 1000
 fi
 

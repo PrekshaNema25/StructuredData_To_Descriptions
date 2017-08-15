@@ -11,7 +11,7 @@ import tensorflow as tf
 from optparse import OptionParser
 from mei_plus_model import *
 from dataset_iterator_hier import *
-from run_inference_mei import *
+from run_training_mei import *
 import os
 
 def main():
@@ -60,16 +60,20 @@ def main():
 
     parser.add_option(
     "-k", "--embedding|-dir", dest="embedding_dir")
+
+    parser.add_option(
+    "-c", "print_frequency", dest="print_frequency")
+
     (option, args) = parser.parse_args(sys.argv)
 
-    if (int(option.emb_tr) == 1):
+    if (option.emb_tr == "True"):
         x = True
     else:
         x = False
 
     c = Config(float(option.lr), int(option.emb_size), int(option.hid_size), int(option.batch_size),
                 int(option.epochs), early_stop=int(option.early_stop), outdir= option.outdir, emb_tr=x,
-                feed_previous=int(option.feed_previous), gamma_param = float(option.gamma_param), vocab_frequency = int(option.vocab_frequency), num_fields=int(option.num_fields), embedding_dir=option.embedding_dir)
+                feed_previous=int(option.feed_previous), gamma_param = float(option.gamma_param), vocab_frequency = int(option.vocab_frequency), num_fields=int(option.num_fields), embedding_dir=option.embedding_dir, print_frequency=int(option.print_frequency))
 
 
     run_attention = run_model(option.wd, BasicAttention(), c)

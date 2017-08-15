@@ -21,7 +21,8 @@ class Config:
     def __init__(self, learning_rate=0.0001, embedding_size=50, hidden_size=100,
                batch_size = 64,max_epochs = 20, max_sequence_length_content = 100, num_fields  = 20,
                max_sequence_length_title=51, max_sequence_length_query = 2, early_stop=100, outdir="../out/",
-               emb_tr=False, feed_previous = 5, vocab_frequency=74, gamma_param = 7.5, embedding_dir="../Data/"):
+               emb_tr=False, feed_previous = 5, vocab_frequency=74, gamma_param = 7.5, embedding_dir="../Data/",
+	       print_frequency=1000):
 
         """ Initialize the object with the parameters.
 
@@ -38,7 +39,6 @@ class Config:
         """
 
 
-	print ("Config", emb_tr)
         config_file = open(outdir + "/config", "w")
 
         self.learning_rate = learning_rate
@@ -57,6 +57,7 @@ class Config:
 	self.vocab_frequency = vocab_frequency
 	self.feed_previous = feed_previous
 	self.gamma_param = gamma_param
+	self.print_frequency = print_frequency
 
         config_file.write("Learning rate " + str(self.learning_rate) + "\n")
         config_file.write("Embedding size " + str(self.embedding_size) + "\n")
@@ -210,34 +211,24 @@ class run_model:
 	    #x = sess.run(self.model.grad, feed_dict = feed_dict)
             #print (x)
 
-	    print ("Loss value ", loss_value, " " , step)
+
             sys.stdout.flush()
             # Check the loss with forward propogation
-            if (step + 1 == steps_per_epoch ) or ((step  + 1) % 1000 == 0):
+            if (step + 1 == steps_per_epoch ) or ((step  + 1) % self.config.print_frequency == 0):
 
                 # Print status to stdout.
                 print('Step %d: loss = %.2f (%.3f sec)' % (step, loss_value, duration))
                 sys.stdout.flush()
                 # Evaluate against the training set.
                 print('Training Data Eval:')
-                self.print_titles(sess, self.dataset.datasets["train"], 7)
-                    
+                self.print_titles(sess, self.dataset.datasets["train"], 2)
+
                 # Evaluate against the validation set.
                 print('Step %d: loss = %.2f' % (step, loss_value))
                 print('Validation Data Eval:')
                 #loss_value = self.do_eval(sess,self.dataset.datasets["valid"])
-                self.print_titles(sess,self.dataset.datasets["valid"], 10)
+                self.print_titles(sess,self.dataset.datasets["valid"], 2)
                 #print('Step %d: loss = %.2f' % (step, loss_value))
-                    
-                # Evaluate against the test set.
-                print('Test Data Eval:')
-                #loss_value = self.do_eval(sess,self.dataset.datasets["test"])
-                self.print_titles(sess,self.dataset.datasets["test"], 10)
-                print('Step %d: loss = %.2f' % (step, loss_value))
-
-                #self.print_titles_in_files(sess, self.dataset.datasets["test"])
-                #self.print_titles_in_files(sess, self.dataset.datasets["train_test"])
-                #self.print_titles_in_files(sess, self.dataset.datasets["valid"])
                 sys.stdout.flush()
 
         return float(total_loss)/ float(steps_per_epoch)
@@ -283,10 +274,9 @@ class run_model:
         """
         total_loss = 0
         awf  = []
-        #awt = []
 
-        f1 = open(self.config.outdir + data_set.name + "_final_results" + str(epoch + 10 ), "wb")
-        f2 = open(self.config.outdir + data_set.name + "_attention_weights" + str(epoch +10) , "wb")
+        f1 = open(self.config.outdir + data_set.name + "_final_results" + str(epoch), "wb")
+        f2 = open(self.config.outdir + data_set.name + "_attention_weights" + str(epoch) , "wb")
         steps_per_epoch =  int(math.ceil(float(data_set.number_of_examples) / float(self.config.batch_size)))
 
         for step in xrange(steps_per_epoch):
@@ -296,16 +286,11 @@ class run_model:
             feed_dict = self.fill_feed_dict(train_content, train_title, train_labels, train_query, train_field, sequence_length, train_weights, feed_previous = True)
 
             _decoder_states_ , attention_weights, attention_weights_fields = sess.run([self.logits, self.attention_weights, self.attention_weights_fields], feed_dict=feed_dict)
-            #_decoder_states_  = sess.run([self.logits], feed_dict=feed_dict)
-            #print('attn_wt shape', np.shape(attention_weights))
-            # print('dec_state shape', np.shape(_decoder_states_))
-            #print ('attention_weights_fields', attention_weights_fields) 
 
             attention_states = np.array([np.argmax(i,1) for i in attention_weights])
            # Pack the list of size max_sequence_length to a tensor
             decoder_states = np.array([np.argmax(i,1) for i in _decoder_states_])
             awf.append(attention_weights_fields)
-            #awt.append(attention_weights)
             # tensor will be converted to [batch_size * sequence_length * symbols]
             ds = np.transpose(decoder_states)
             attn_state = np.transpose(attention_states)   
@@ -315,7 +300,6 @@ class run_model:
             final_as = attn_state.tolist()
             true_labels = true_labels.tolist()
 
-            #print(final_ds)
             for i, states in enumerate(final_ds):
 
                 # Get the index of the highest scoring symbol for each time step
@@ -328,7 +312,6 @@ class run_model:
                 f2.write(x + "\n")
         
         pickle.dump(awf, open(self.config.outdir + data_set.name + "_awf", "wb"))
-        #pickle.dump(awt, open(self.config.outdir + data_set.name + "_awt", "wb"))
 
     def print_titles(self, sess, data_set, total_examples):
 
@@ -471,8 +454,8 @@ class run_model:
             test_loss = self.do_eval(sess, self.dataset.datasets["test"])
 
             print ("Test Loss:{}".format(test_loss))
-            #self.print_titles_in_files(sess, self.dataset.datasets["test"], 100)
-            self.print_titles_in_files(sess, self.dataset.datasets["valid"], 100)
+            #self.print_titles_in_files(sess, self.dataset.datasets["test"], "")
+            #self.print_titles_in_files(sess, self.dataset.datasets["valid"], "")
 
 def main():
     parser = OptionParser()
