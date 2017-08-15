@@ -1,4 +1,4 @@
-# Move On And Never Look Back: An Improved Neural Encoder Decoder Architecture for Generating Natural Language Descriptions from Structured Data
+# *Move On And Never Look Back*: An Improved Neural Encoder Decoder Architecture for Generating Natural Language Descriptions from Structured Data
 
 Given Wikipedia infoboxes for personalities generated natural language text
 
