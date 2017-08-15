@@ -2,6 +2,12 @@
 Given Wikipedia infoboxes for personalities generated natural language text
 
 
+## Requirements:
+* [tensorflow-0.12](https://www.tensorflow.org/versions/r0.12/get_started/os_setup)
+* [gensim](https://pypi.python.org/pypi/gensim)
+* [nltk](http://www.nltk.org/install.html)
+* [matplotlib](https://matplotlib.org/users/installing.html)
+
 ## Data Download:
     The English Biography Dataset has been released as a part of the following work: .
     The dataset is avaliable at link : 
@@ -30,5 +36,7 @@ Given Wikipedia infoboxes for personalities generated natural language text
     To tweak the hyperparameters for the above models please do the required changes in train.sh.
     The current configurations that have set are set based on the best performing hyperparameters
     during our experiments for English Wikibio Dataset. 
+    
+
     
     
