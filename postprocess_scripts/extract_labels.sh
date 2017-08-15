@@ -1,5 +1,6 @@
 # Clean the extracted labels by removing the <pad> and <eos> symbols.
 # Post process the labels to also generate the copy predictions
+# Save the attention weight plots
 
 #Usage:
 #$1 : output_dir
@@ -15,10 +16,22 @@ python postprocess.py $2/valid_content $1/valid_final_results_plabels $1/valid_a
 mkdir $1/predictions
 mkdir -p $1/predictions/test
 mkdir -p $1/predictions/valid
-
+mkdir -p $1/plots
+mkdir -p $1/plots/test
+mkdir -p $1/plots/test
 cp $1/test_final_results_plabels $1/predictions/test/
 cp $1/test_final_results_plabels_copy $1/predictions/test
 
 
 cp $1/valid_final_results_plabels $1/predictions/valid/
 cp $1/valid_final_results_plabels_copy $1/predictions/valid/
+
+
+sed 's/<pad>//g' $2/test_field > $2/test_field_modified
+sed 's/<pad>//g' $2/valid_field > $2/valid_field_modified
+max_plots_save=100
+
+python plt_attention.py $1/test_awf $1/predictions/test/test_final_results_plabels_copy $2/test_field_modified $max_plots_save $1/plots/test
+python plt_attention.py $1/valid_awf $1/predictions/valid/valid_final_results_plabels_copy $2/valid_field_modified $max_plots_save $1/plots/valid
+
+
