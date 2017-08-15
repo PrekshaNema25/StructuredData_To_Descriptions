@@ -20,7 +20,7 @@ class Config:
 
     def __init__(self, learning_rate=0.0001, embedding_size=50, hidden_size=100,
                batch_size = 64,max_epochs = 20, max_sequence_length_content = 100,
-               max_sequence_length_title=50, max_sequence_length_query = 20, early_stop=100, outdir="../out/",
+               max_sequence_length_title=50,  early_stop=100, outdir="../out/",
                emb_tr=False, feed_previous = 5, vocab_frequency = 73, embedding_dir = '../Data', print_frequency=200):
 
         """ Initialize the object with the parameters.
@@ -45,7 +45,6 @@ class Config:
         self.embedding_size = embedding_size
         self.max_sequence_length_content = max_sequence_length_content
         self.max_sequence_length_title   = max_sequence_length_title
-        self.max_sequence_lenght_query   = max_sequence_length_query
         self.hidden_size = hidden_size
         self.batch_size = batch_size
         self.max_epochs = max_epochs
@@ -106,7 +105,7 @@ class run_model:
         #self.max_title_per_batch_p     = tf.placeholder(tf.int32, name='max_title')
 
 
-    def fill_feed_dict(self, encoder_inputs, decoder_inputs, labels, query, weights, feed_previous=False):
+    def fill_feed_dict(self, encoder_inputs, decoder_inputs, labels, weights, feed_previous=False):
 
         """ Fills the feed_dict for training at a given time_step.
 
