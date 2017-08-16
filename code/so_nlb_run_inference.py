@@ -75,7 +75,7 @@ def main():
 
 
 
-    if (int(option.emb_tr) == 1):
+    if (option.emb_tr == "True"):
         x = True
     else:
         x = False 

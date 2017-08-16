@@ -9,10 +9,10 @@
 # Setting some hyperparamenters based on the dataset
 # that has been passed
 
-data=data_
+data=../data_
 embedding=_embedding
 
-mkdir -p ../output
+mkdir -p ../output/
 
 if [ "$2" == "weathergov" ]
 then
@@ -27,6 +27,7 @@ then
 	vocab_frequency_cutoff=74
 
 elif [ "$2" == "french" ]
+then
 	tokens_per_field=5
 	num_fields=15
 	vocab_frequency_cutoff=15
@@ -38,29 +39,81 @@ else # german
 
 fi
  
-tokens_per_field = 5
 if [ "$1" == "seq2seq" ]
 then 
-	python seq2seq_run_model.py --work-dir $data$2 --learning-rate 0.0004 --embedding-size 300
-	--hidden-size 512 --batch-size 32 --epochs 20 --early-stop 5 --output_dir ../output --emb-train
-False --vocab-freq $vocab_frequency_cutoff --num-fields $num_fields --feed-previous 20 --embedding-dir $2$embedding --print_frequency 1000
+	python seq2seq_run_model.py --work-dir $data$2/ --learning-rate 0.0004 --embedding-size 300 --hidden-size 512 --batch-size 32 --epochs 20 --early_stop 5 --output/_dir ../output/ --emb-train False --vocab-freq $vocab_frequency_cutoff --num-fields $num_fields --feed-previous 20 --embedding-dir ../$2$embedding/ --print_frequency 1000
 
 elif [ "$1" == "hierarchy" ]
-	python so_nlb_run_model.py --work-dir $data$2 --learning-rate 0.0004 --embedding-size 300
-	--hidden-size 128 --batch-size 32 --epochs 20 --early-stop 5 --output_dir ../output --emb-train
-False --vocab-freq $vocab_frequency_cutoff --num-fields $num_fields --feed-previous 20 --embedding-dir $2$embedding --is-stay-nlb False --num-tokens-per-field $tokens_per_field --print_frequency 1000
+then
+	python so_nlb_run_model.py --work-dir $data$2/ --learning-rate 0.0004 --embedding-size 300 --hidden-size 128 --batch-size 32 --epochs 20 --early_stop 5 --output/_dir ../output/ --emb-train False --vocab-freq $vocab_frequency_cutoff --num-fields $num_fields --feed-previous 20 --embedding-dir ../$2$embedding/ --is-stay-nlb False --num-tokens-per-field $tokens_per_field --print_frequency 1000
 
-then 
 elif [ "$1" == "nlb" ]
 then
-	python so_nlb_run_model.py --work-dir $data$2 --learning-rate 0.0004 --embedding-size 300
-	--hidden-size 512 --batch-size 64 --epochs 20 --early-stop 5 --output_dir ../output --emb-train
-False --vocab-freq $vocab_frequency_cutoff --num-fields $num_fields --feed-previous 20 --embedding-dir $2$embedding --is-stay-nlb True --num-tokens-per-field $tokens_per_field --print_frequency 1000
+	python so_nlb_run_model.py --work-dir $data$2/ --learning-rate 0.0004 --embedding-size 300 --hidden-size 512 --batch-size 64 --epochs 20 --early_stop 5 --output/_dir ../output/ --emb-train False --vocab-freq $vocab_frequency_cutoff --num-fields $num_fields --feed-previous 20 --embedding-dir ../$2$embedding/ --is-stay-nlb True --num-tokens-per-field $tokens_per_field --print_frequency 1000
 
 elif [ "$1" == "mei_plus" ]
 then 
-	python mei_plus_run_model.py --work-dir $data$2 --learning-rate 0.0004 --embedding-size 300
-	--hidden-size 128 --batch-size 64 --epochs 20 --early-stop 5 --output_dir ../output --emb-train
-False --gamma_tunable 10 --vocab-freq $vocab_frequency_cutoff --num-fields $num_fields --feed-previous 20 --embedding-dir $2$embedding --is-stay-nlb True --num-tokens-per-field $tokens_per_field --print_frequency 1000
+	python mei_plus_run_model.py --work-dir $data$2/ --learning-rate 0.0004 --embedding-size 300 --hidden-size 128 --batch-size 64 --epochs 20 --early_stop 5 --output/_dir ../output/ --emb-train False --gamma_tunable 10 --vocab-freq $vocab_frequency_cutoff --num-fields $num_fields --feed-previous 20 --embedding-dir ../$2$embedding/ --is-stay-nlb True --num-tokens-per-field $tokens_per_field --print_frequency 1000
 fi
 
+
+: '
+Best hyperparameter settings for French Data:
+
+
+if [ "$1" == "seq2seq" ]
+then
+        python seq2seq_run_model.py --work-dir $data$2/ --learning-rate 0.0004 --embedding-size 300
+        --hidden-size 256 --batch-size 64 --epochs 20 --early_stop 5 --output/_dir ../output/ --emb-train
+False --vocab-freq $vocab_frequency_cutoff --num-fields $num_fields --feed-previous 20 --embedding-dir ../$2$embedding/ --print_frequency 1000
+
+elif [ "$1" == "hierarchy" ]
+        python so_nlb_run_model.py --work-dir $data$2/ --learning-rate 0.0004 --embedding-size 300
+        --hidden-size 512 --batch-size 32 --epochs 20 --early_stop 5 --output/_dir ../output/ --emb-train
+False --vocab-freq $vocab_frequency_cutoff --num-fields $num_fields --feed-previous 20 --embedding-dir ../$2$embedding/ --is-stay-nlb False --num-tokens-per-field $tokens_per_field --print_frequency 1000
+
+then
+elif [ "$1" == "nlb" ]
+then
+        python so_nlb_run_model.py --work-dir $data$2/ --learning-rate 0.0004 --embedding-size 300
+        --hidden-size 256 --batch-size 64 --epochs 20 --early_stop 5 --output/_dir ../output/ --emb-train
+False --vocab-freq $vocab_frequency_cutoff --num-fields $num_fields --feed-previous 20 --embedding-dir ../$2$embedding/ --is-stay-nlb True --num-tokens-per-field $tokens_per_field --print_frequency 1000
+
+elif [ "$1" == "mei_plus" ]
+then
+        python mei_plus_run_model.py --work-dir $data$2/ --learning-rate 0.0004 --embedding-size 300
+        --hidden-size 256 --batch-size 32 --epochs 20 --early_stop 5 --output/_dir ../output/ --emb-train
+False --gamma_tunable 5 --vocab-freq $vocab_frequency_cutoff --num-fields $num_fields --feed-previous 20 --embedding-dir ../$2$embedding/ --is-stay-nlb True --num-tokens-per-field $tokens_per_field --print_frequency 1000
+fi
+
+
+
+Best hyperparameter settings for German Data:
+
+
+if [ "$1" == "seq2seq" ]
+then
+        python seq2seq_run_model.py --work-dir $data$2/ --learning-rate 0.0004 --embedding-size 300
+        --hidden-size 512 --batch-size 64 --epochs 20 --early_stop 5 --output/_dir ../output/ --emb-train
+False --vocab-freq $vocab_frequency_cutoff --num-fields $num_fields --feed-previous 20 --embedding-dir ../$2$embedding/ --print_frequency 1000
+
+elif [ "$1" == "hierarchy" ]
+        python so_nlb_run_model.py --work-dir $data$2/ --learning-rate 0.0004 --embedding-size 300
+        --hidden-size 512 --batch-size 64 --epochs 20 --early_stop 5 --output/_dir ../output/ --emb-train
+False --vocab-freq $vocab_frequency_cutoff --num-fields $num_fields --feed-previous 20 --embedding-dir ../$2$embedding/ --is-stay-nlb False --num-tokens-per-field $tokens_per_field --print_frequency 1000
+
+then
+elif [ "$1" == "nlb" ]
+then
+        python so_nlb_run_model.py --work-dir $data$2/ --learning-rate 0.0004 --embedding-size 300
+        --hidden-size 512 --batch-size 64 --epochs 20 --early_stop 5 --output/_dir ../output/ --emb-train
+False --vocab-freq $vocab_frequency_cutoff --num-fields $num_fields --feed-previous 20 --embedding-dir ../$2$embedding/ --is-stay-nlb True --num-tokens-per-field $tokens_per_field --print_frequency 1000
+
+elif [ "$1" == "mei_plus" ]
+then
+        python mei_plus_run_model.py --work-dir $data$2/ --learning-rate 0.0004 --embedding-size 300
+        --hidden-size 512 --batch-size 64 --epochs 20 --early_stop 5 --output/_dir ../output/ --emb-train
+False --gamma_tunable 5 --vocab-freq $vocab_frequency_cutoff --num-fields $num_fields --feed-previous 20 --embedding-dir ../$2$embedding/ --is-stay-nlb True --num-tokens-per-field $tokens_per_field --print_frequency 1000
+fi
+
+'
