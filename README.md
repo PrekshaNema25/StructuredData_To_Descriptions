@@ -11,7 +11,7 @@ Given Wikipedia infoboxes for personalities generated natural language text
 
 ## Data Download:
     The English Biography Dataset has been released as a part of the following work: .
-    The dataset is avaliable at link : [WikiBio](https://github.com/DavidGrangier/wikipedia-biography-dataset)
+    The dataset is avaliable at link : [WikiBio] (https://github.com/DavidGrangier/wikipedia-biography-dataset)
     You can also use the following command to download the dataset and convert it to the format
     required by the models given:
     sh data_extraction_scripts/get_biography_dataset.sh
