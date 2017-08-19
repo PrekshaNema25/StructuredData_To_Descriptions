@@ -358,188 +358,12 @@ def _get_sharded_variable(name, shape, dtype, num_shards):
                                   dtype=dtype))
   return shards
 
-class DistractionLSTMCell_soft(RNNCell):
-  """Basic LSTM recurrent network cell.
-
-  The implementation is based on: http://arxiv.org/abs/1409.2329.
-
-  We add forget_bias (default: 1) to the biases of the forget gate in order to
-  reduce the scale of forgetting in the beginning of the training.
-
-  It does not allow cell clipping, a projection layer, and does not
-  use peep-hole connections: it is the basic baseline.
-
-  For advanced models, please use the full LSTMCell that follows.
-  """
-
-  def __init__(self, num_units, forget_bias=1.0, input_size=None,
-               state_is_tuple=False, activation=tanh):
-    """Initialize the basic LSTM cell.
-
-    Args:
-      num_units: int, The number of units in the LSTM cell.
-      forget_bias: float, The bias added to forget gates (see above).
-      input_size: Deprecated and unused.
-      state_is_tuple: If True, accepted and returned states are 2-tuples of
-        the `c_state` and `m_state`.  By default (False), they are concatenated
-        along the column axis.  This default behavior will soon be deprecated.
-      activation: Activation function of the inner states.
-    """
-    if not state_is_tuple:
-      logging.warn("%s: Using a concatenated state is slower and will soon be "
-                   "deprecated.  Use state_is_tuple=True.", self)
-    if input_size is not None:
-      logging.warn("%s: The input_size parameter is deprecated.", self)
-    self._num_units = num_units
-    self._forget_bias = forget_bias
-    self._state_is_tuple = state_is_tuple
-    self._activation = activation
-
-  @property
-  def state_size(self):
-    return (LSTMStateTuple(self._num_units, self._num_units)
-            if self._state_is_tuple else 2 * self._num_units)
-
-  @property
-  def output_size(self):
-    return self._num_units
-
-  def __call__(self, inputs, state, scope=None):
-    """Long short-term memory cell (LSTM)."""
-    with vs.variable_scope(scope or type(self).__name__):  # "BasicLSTMCell"
-      # Parameters of gates are concatenated into one multiply for efficiency.
-      if self._state_is_tuple:
-        c, h = state
-      else:
-        c, h = array_ops.split(1, 2, state)
-      concat = _linear([inputs, h], 5 * self._num_units, True)
-
-      # i = input_gate, j = new_input, f = forget_gate, o = output_gate
-      i, j, f, o, g = array_ops.split(1, 5, concat)
-
-      new_c = (c * sigmoid(f + self._forget_bias) + sigmoid(i) *
-               self._activation(j))
-
-
-      #print ("Sigmoid i shape", sigmoid(i).get_shape())
-      eps = 0.00000000000001
-      temp = math_ops.div(math_ops.reduce_sum(math_ops.mul(c, new_c),1),math_ops.reduce_sum(math_ops.mul(c,c),1) + eps)
-
-      m = array_ops.transpose(sigmoid(g))
-      t1 = math_ops.mul(m , temp)
-      t1 = array_ops.transpose(t1) 
- 
-      distract_c = new_c  -  c * t1
-
-      new_h = self._activation(distract_c) * sigmoid(o)
-
-      if self._state_is_tuple:
-        new_state = LSTMStateTuple(new_c, new_h)
-      else:
-        new_state = array_ops.concat(1, [new_c, new_h])
-      return new_h, new_state
-
-
-
-class DistractionLSTMCell_soft_reset(RNNCell):
-  """Basic LSTM recurrent network cell.
-
-  The implementation is based on: http://arxiv.org/abs/1409.2329.
-
-  We add forget_bias (default: 1) to the biases of the forget gate in order to
-  reduce the scale of forgetting in the beginning of the training.
-
-  It does not allow cell clipping, a projection layer, and does not
-  use peep-hole connections: it is the basic baseline.
-
-  For advanced models, please use the full LSTMCell that follows.
-  """
-
-  def __init__(self, num_units, forget_bias=1.0, input_size=None,
-               state_is_tuple=False, activation=tanh):
-    """Initialize the basic LSTM cell.
-
-    Args:
-      num_units: int, The number of units in the LSTM cell.
-      forget_bias: float, The bias added to forget gates (see above).
-      input_size: Deprecated and unused.
-      state_is_tuple: If True, accepted and returned states are 2-tuples of
-        the `c_state` and `m_state`.  By default (False), they are concatenated
-        along the column axis.  This default behavior will soon be deprecated.
-      activation: Activation function of the inner states.
-    """
-    if not state_is_tuple:
-      logging.warn("%s: Using a concatenated state is slower and will soon be "
-                   "deprecated.  Use state_is_tuple=True.", self)
-    if input_size is not None:
-      logging.warn("%s: The input_size parameter is deprecated.", self)
-    self._num_units = num_units
-    self._forget_bias = forget_bias
-    self._state_is_tuple = state_is_tuple
-    self._activation = activation
-
-  @property
-  def state_size(self):
-    return (LSTMStateTuple(self._num_units, self._num_units)
-            if self._state_is_tuple else 2 * self._num_units)
-
-  @property
-  def output_size(self):
-    return self._num_units
-
-  def __call__(self, inputs, state, prev_gate, scope=None):
-    """Long short-term memory cell (LSTM)."""
-    with vs.variable_scope(scope or type(self).__name__):  # "BasicLSTMCell"
-      # Parameters of gates are concatenated into one multiply for efficiency.
-      if self._state_is_tuple:
-        c, h = state
-      else:
-        c, h = array_ops.split(1, 2, state)
-      concat = _linear([inputs, h], 6 * self._num_units, True)
-
-      # i = input_gate, j = new_input, f = forget_gate, o = output_gate
-      i, j, f, o, g, r = array_ops.split(1, 6, concat)
-
-      new_c = (c * sigmoid(f + self._forget_bias) + sigmoid(i) *
-               self._activation(j))
-
-
-      sig_r = sigmoid(r)
-      sig_g = sigmoid(g)
-      new_g =  ( 1 - sig_r) * (prev_gate * prev_gate) + sig_r* sig_g
-      #print ("Sigmoid i shape", sigmoid(i).get_shape())
-      eps = 0.00000000000001
-      temp = math_ops.div(math_ops.reduce_sum(math_ops.mul(c, new_c),1),math_ops.reduce_sum(math_ops.mul(c,c),1) + eps)
-
-      m = array_ops.transpose(new_g)
-      t1 = math_ops.mul(m , temp)
-      t1 = array_ops.transpose(t1) 
- 
-      distract_c = new_c  -  c * t1
-
-      new_h = self._activation(distract_c) * sigmoid(o)
-
-      if self._state_is_tuple:
-        new_state = LSTMStateTuple(new_c, new_h)
-      else:
-        new_state = array_ops.concat(1, [new_c, new_h])
-      return new_h, new_state, new_g
-
-
-
 
 class Neverlookback_cell(RNNCell):
-  """Basic LSTM recurrent network cell.
+  """Neverlook back LSTM cell.
 
-  The implementation is based on: http://arxiv.org/abs/1409.2329.
-
-  We add forget_bias (default: 1) to the biases of the forget gate in order to
-  reduce the scale of forgetting in the beginning of the training.
-
-  It does not allow cell clipping, a projection layer, and does not
-  use peep-hole connections: it is the basic baseline.
-
-  For advanced models, please use the full LSTMCell that follows.
+  The implementation is based on: http://arxiv.org/abs/1409.2329,
+  and modified according to the equations defined in AAA
   """
 
   def __init__(self, num_units, forget_bias=1.0, input_size=None,
@@ -594,102 +418,29 @@ class Neverlookback_cell(RNNCell):
       new_g =  ( 1 - sigmoid(f) )
       #print ("Sigmoid i shape", sigmoid(i).get_shape())
       eps = 0.00000000000001
+      
+      # Computes the projection
+      # The shape of temp will be batch_size x 1
       temp = math_ops.div(math_ops.reduce_sum(math_ops.mul(c, new_c),1),math_ops.reduce_sum(math_ops.mul(c,c),1) + eps)
 
+      # Transpose so that temp can be broadcasted over new_g 
       m = array_ops.transpose(new_g)
+      
+      # element wise multiplication
       t1 = math_ops.mul(m , temp)
       t1 = array_ops.transpose(t1) 
  
-      distract_c = new_c  -  c * t1
+      
+      nlb_c = new_c  -  c * t1
 
-      new_h = self._activation(distract_c) * sigmoid(o)
-
-      if self._state_is_tuple:
-        new_state = LSTMStateTuple(new_c, new_h)
-      else:
-        new_state = array_ops.concat(1, [new_c, new_h])
-      return new_h, new_state
-
-class DistractionLSTMCell_hard(RNNCell):
-  """Basic LSTM recurrent network cell.
-
-  The implementation is based on: http://arxiv.org/abs/1409.2329.
-
-  We add forget_bias (default: 1) to the biases of the forget gate in order to
-  reduce the scale of forgetting in the beginning of the training.
-
-  It does not allow cell clipping, a projection layer, and does not
-  use peep-hole connections: it is the basic baseline.
-
-  For advanced models, please use the full LSTMCell that follows.
-  """
-
-  def __init__(self, num_units, forget_bias=1.0, input_size=None,
-               state_is_tuple=False, activation=tanh):
-    """Initialize the basic LSTM cell.
-
-    Args:
-      num_units: int, The number of units in the LSTM cell.
-      forget_bias: float, The bias added to forget gates (see above).
-      input_size: Deprecated and unused.
-      state_is_tuple: If True, accepted and returned states are 2-tuples of
-        the `c_state` and `m_state`.  By default (False), they are concatenated
-        along the column axis.  This default behavior will soon be deprecated.
-      activation: Activation function of the inner states.
-    """
-    if not state_is_tuple:
-      logging.warn("%s: Using a concatenated state is slower and will soon be "
-                   "deprecated.  Use state_is_tuple=True.", self)
-    if input_size is not None:
-      logging.warn("%s: The input_size parameter is deprecated.", self)
-    self._num_units = num_units
-    self._forget_bias = forget_bias
-    self._state_is_tuple = state_is_tuple
-    self._activation = activation
-
-  @property
-  def state_size(self):
-    return (LSTMStateTuple(self._num_units, self._num_units)
-            if self._state_is_tuple else 2 * self._num_units)
-
-  @property
-  def output_size(self):
-    return self._num_units
-
-  def __call__(self, inputs, state, scope=None):
-    """Long short-term memory cell (LSTM)."""
-    with vs.variable_scope(scope or type(self).__name__):  # "BasicLSTMCell"
-      # Parameters of gates are concatenated into one multiply for efficiency.
-      if self._state_is_tuple:
-        c, h = state
-      else:
-        c, h = array_ops.split(1, 2, state)
-      concat = _linear([inputs, h], 4 * self._num_units, True)
-
-      # i = input_gate, j = new_input, f = forget_gate, o = output_gate
-      i, j, f, o = array_ops.split(1, 4, concat)
-
-      new_c = (c * sigmoid(f + self._forget_bias) + sigmoid(i) *
-               self._activation(j))
-
-
-      eps = 0.00000000000001
-      temp = math_ops.div(math_ops.reduce_sum(math_ops.mul(c, new_c),1),math_ops.reduce_sum(math_ops.mul(c,c),1) + eps)
-
-
-      dummy = array_ops.transpose(c)
-
-      t1 = math_ops.mul(dummy, temp)
-      t1 = array_ops.transpose(t1) 
-      distract_c = new_c  -  t1
-
-      new_h = self._activation(distract_c) * sigmoid(o)
+      new_h = self._activation(nlb_c) * sigmoid(o)
 
       if self._state_is_tuple:
         new_state = LSTMStateTuple(new_c, new_h)
       else:
         new_state = array_ops.concat(1, [new_c, new_h])
       return new_h, new_state
+
 
 
 def _get_concat_variable(name, shape, dtype, num_shards):
