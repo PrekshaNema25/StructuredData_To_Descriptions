@@ -109,8 +109,7 @@ class PadDataset:
         batch = []
         batch = data[idx:idx+batch_size]
         idx = idx + batch_size
-        #index = 0
-        #temp = count + batch_size
+
         while (len(batch) < batch_size):
             batch.append(np.zeros(max_length, dtype = int))
             idx = 0
