@@ -103,11 +103,9 @@ class PadDataset:
         batch = []
         batch = data[count:count+batch_size]
         count = count + batch_size
-        #index = 0
-        #temp = count + batch_size
+
         while (len(batch) < batch_size):
             batch.append(np.zeros(max_length, dtype = int))
-            #index = index + 1
             count = 0
             
         batch = self.pad_data(batch,max_length)
@@ -116,8 +114,6 @@ class PadDataset:
         return batch, count
 
     def next_batch(self, dt, batch_size, c=True):
-
-        #print("enter")
         if (c is True):
             count = dt.global_count_train
         
@@ -215,7 +211,6 @@ class PadDataset:
 
     def __init__(self,  working_dir = "../Data/", embedding_size=100, vocab_frequency = 74, global_count = 0, embedding_dir = "../Data"):
         filenames = [working_dir + "train_summary" , working_dir + "train_content", working_dir + "train_field", working_dir + "train_sequence_length"]
-        #filenames = ["../DP_data/all_files"]
         self.global_count = 0
         self.vocab = Vocab()
         self.vocab.construct_vocab(filenames,embedding_size, vocab_frequency, embedding_dir)
