@@ -1,9 +1,10 @@
 # Given the language, extract the corresponding embedding in the given folder 
 
 #Usage:
-# sh extract_embedding <lang_name> <out_folder
+# sh extract_embedding <lang_name> <out_folder>
 
 str=$1
+mkdir $2
 english="english"
 french="french"
 german="german"
