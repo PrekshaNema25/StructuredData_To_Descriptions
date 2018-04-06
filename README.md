@@ -1,4 +1,5 @@
-# *Move On And Never Look Back*: An Improved Neural Encoder Decoder Architecture for Generating Natural Language Descriptions from Structured Data
+# Generating Descriptions from Structured Data Using a Bifocal Attention Mechanism and Gated Orthogonalization
+
 
 Given Wikipedia infoboxes for personalities generated natural language text
 
@@ -18,9 +19,9 @@ Given Wikipedia infoboxes for personalities generated natural language text
 
 ## Pretrained Embeddings
     Download the pretrained embeddings for a given language and then store it to the destination folder. 
-    * English Embedding: bash data_extraction_scripts/extract_embedding english english_embedding
-    * French  Embedding: bash data_extraction_scripts/extract_embedding french french_embedding
-    * German  Embedding: bash data_extraction_scripts/extract_embedding german german_embedding
+    * English Embedding: bash data_extraction_scripts/extract_embeddings.sh english english_embedding
+    * French  Embedding: bash data_extraction_scripts/extract_embedding.sh french french_embedding
+    * German  Embedding: bash data_extraction_scripts/extract_embeddings.sh german german_embedding
     
     
 ## Various Proposed Model: Training
