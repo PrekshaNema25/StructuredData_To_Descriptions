@@ -1,7 +1,7 @@
 # Generating Descriptions from Structured Data Using a Bifocal Attention Mechanism and Gated Orthogonalization
 
 
-Given Wikipedia infoboxes for personalities generated natural language text
+Given Wikipedia infoboxes for personalities generate natural language text
 
 
 ## Requirements:
