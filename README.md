@@ -5,6 +5,7 @@ Given Wikipedia infoboxes for personalities generate natural language text
 
 
 ## Requirements:
+* python2.7
 * [tensorflow-0.12](https://www.tensorflow.org/versions/r0.12/get_started/os_setup)
 * [gensim](https://pypi.python.org/pypi/gensim)
 * [nltk](http://www.nltk.org/install.html)
