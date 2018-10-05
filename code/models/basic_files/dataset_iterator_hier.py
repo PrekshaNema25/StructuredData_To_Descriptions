@@ -203,14 +203,14 @@ class PadDataset:
         self.datasets = {}
         for i in ("train", "valid", "test"):
             temp_t = s + i + "_summary"
-            temp_v = s + i + "_content"
+            temp_v = s + i + "_content_hier"
             temp_f = s + i + "_field"
             temp_l = s + i + "_sequence_length"
             self.datasets[i] = self.load_data_file(i, temp_t, temp_v, temp_f, temp_l)
 
 
     def __init__(self,  working_dir = "../Data/", embedding_size=100, vocab_frequency = 74, global_count = 0, embedding_dir = "../Data"):
-        filenames = [working_dir + "train_summary" , working_dir + "train_content", working_dir + "train_field", working_dir + "train_sequence_length"]
+        filenames = [working_dir + "train_summary" , working_dir + "train_content_hier", working_dir + "train_field", working_dir + "train_sequence_length"]
         self.global_count = 0
         self.vocab = Vocab()
         self.vocab.construct_vocab(filenames,embedding_size, vocab_frequency, embedding_dir)
